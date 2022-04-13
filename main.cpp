@@ -150,11 +150,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	assert(SUCCEEDED(result));
 
 	//デスクリプタヒープ
-	D3D12_DESCRIPTOR_HEAP_DESC rtvHeadDesc{};
-	rtvHeadDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; //レンダーターゲットビュー
-	rtvHeadDesc.NumDescriptors = swapChainDesc.BufferCount; //裏表の二つ
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; //レンダーターゲットビュー
+	rtvHeapDesc.NumDescriptors = swapChainDesc.BufferCount; //裏表の二つ
 	//生成
-	device->CreateDescriptorHeap(&rtvHeadDesc, IID_PPV_ARGS(&rtvHeap));
+	device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&rtvHeap));
 	assert(SUCCEEDED(result));
 
 	//バックバッファ
@@ -168,7 +168,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//デスクリプタヒープのハンドルを取得
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
 		//裏か表かでアドレスをずらす
-		rtvHandle.ptr += i * device->GetDescriptorHandleIncrementSize(rtvHeadDesc.Type);
+		rtvHandle.ptr += i * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
 		//レンダーターゲットビューの設定
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 		//シェーダーの計算結果をSRGBに変換して書き込む
@@ -194,7 +194,58 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 
+		//バックバッファ番号の取得
+		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 
+		//リソースバリアで書き込み可能に変更
+		D3D12_RESOURCE_BARRIER barrierDesc{};
+		barrierDesc.Transition.pResource = backBuffers[bbIndex].Get();
+		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT; //Before:表示から
+		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET; //After:描画へ
+		commandList->ResourceBarrier(1, &barrierDesc);
+
+		//バックバッファを描画先にする
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+		rtvHandle.ptr += bbIndex * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
+		commandList->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
+
+		//画面クリア～
+		FLOAT clearColor[] = {0.1f, 0.25f, 0.5f, 0.0f}; //青っぽい色でクリアする
+		commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+
+		//描画コマンド
+		//None
+		
+		//リソースバリアを表示に戻す
+		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
+		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT; //After:表示へ
+		commandList->ResourceBarrier(1, &barrierDesc);
+
+		//命令のクローズ
+		result = commandList->Close();
+		assert(SUCCEEDED(result));
+		//コマンドリストの実行
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		commandQueue->ExecuteCommandLists(1, commandLists);
+
+		//フリップ
+		result = swapChain->Present(1, 0);
+		assert(SUCCEEDED(result));
+
+		commandQueue->Signal(fence.Get(), ++fenceVal);
+		if (fence->GetCompletedValue() != fenceVal) {
+			HANDLE event = CreateEvent(nullptr, false, false, nullptr);
+			fence->SetEventOnCompletion(fenceVal, event);
+			WaitForSingleObject(event, INFINITE);
+			CloseHandle(event);
+		}
+
+		//キューをクリア
+		result = cmdAllocator.Reset();
+		assert(SUCCEEDED(result));
+		// 再びコマンドリストを貯める準備
+		result = commandList->Reset(cmdAllocator.Get(), nullptr);
+		assert(SUCCEEDED(result));
 	}
 	return 0;
 }
