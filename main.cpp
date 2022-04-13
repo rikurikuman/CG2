@@ -241,7 +241,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//キューをクリア
-		result = cmdAllocator.Reset();
+		result = cmdAllocator->Reset();
 		assert(SUCCEEDED(result));
 		// 再びコマンドリストを貯める準備
 		result = commandList->Reset(cmdAllocator.Get(), nullptr);
