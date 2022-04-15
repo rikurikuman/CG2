@@ -22,6 +22,8 @@ using namespace Microsoft::WRL;
 
 LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+void SendVertexData();
+
 const int WIN_WIDTH = 1280;
 const int WIN_HEIGHT = 720;
 
@@ -220,7 +222,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{ -0.5f, -0.5f, 0.0f }, //左下
 		{ -0.5f, +0.5f, 0.0f }, //左上
 		{ +0.5f, -0.5f, 0.0f }, //右下
+		{ +0.5f, +0.5f, 0.0f }, //右上
+		{ -0.5f, +0.5f, 0.0f }, //左上
+		{ +0.5f, -0.5f, 0.0f }, //右下
 	};
+
 	//頂点データ全体のサイズ
 	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * _countof(vertices));
 
@@ -248,7 +254,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	);
 	assert(SUCCEEDED(result));
 
-	//GPU上のバッファに対応した仮想メモリを取得
+	//GPU上のバッファに対応した仮想メモリを取得/転送
 	XMFLOAT3* vertMap = nullptr;
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	assert(SUCCEEDED(result));
@@ -372,6 +378,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	result = device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pipelineState));
 	assert(SUCCEEDED(result));
 
+	ComPtr<ID3D12PipelineState> pipelineStateWireFrame = nullptr;
+	pipelineDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	result = device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pipelineStateWireFrame));
+	assert(SUCCEEDED(result));
+
+	//めんどいのでここ！！！
+	BYTE key[256] = {};
+	BYTE oldkey[256] = {};
+	bool isSquare = false;
+	ComPtr<ID3D12PipelineState> usingPipelineState = pipelineState;
+
 	while (true) {
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg); //キー入力メッセージ処理
@@ -386,8 +403,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		keyboard->Acquire();
 
 		//全キーの入力状態を取得する
-		BYTE key[256] = {};
+		for (int i = 0; i < 256; i++) {
+			oldkey[i] = key[i];
+		}
 		keyboard->GetDeviceState(sizeof(key), key);
+
+		if (key[DIK_1] && !oldkey[DIK_1]) {
+			isSquare = !isSquare;
+		}
+
+		if (key[DIK_2] && !oldkey[DIK_2]) {
+			if (usingPipelineState == pipelineState) {
+				usingPipelineState = pipelineStateWireFrame;
+			}
+			else {
+				usingPipelineState = pipelineState;
+			}
+		}
 
 		//以下描画
 		//バックバッファ番号の取得
@@ -409,9 +441,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		FLOAT clearColor[] = {0.1f, 0.25f, 0.5f, 0.0f}; //青っぽい色でクリアする
 		if (key[DIK_SPACE]) {
 			//赤っぽい色でクリアする
-			clearColor[0] = 0.5f;
-			clearColor[1] = 0.1f;
-			clearColor[2] = 0.1f;
+			clearColor[0] = 239 / 255.0f;
+			clearColor[1] = 147 / 255.0f;
+			clearColor[2] = 182 / 255.0f;
 			clearColor[3] = 0.0f;
 		}
 		commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
@@ -419,13 +451,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//描画コマンド
 		//ビューポート設定コマンド
 		D3D12_VIEWPORT viewport{};
-		viewport.Width = WIN_WIDTH;
-		viewport.Height = WIN_HEIGHT;
+		viewport.Width = WIN_WIDTH - 100;
+		viewport.Height = WIN_HEIGHT - 100;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
-		commandList->RSSetViewports(1, &viewport);
+
+		D3D12_VIEWPORT viewport2{};
+		viewport2.Width = WIN_WIDTH - (WIN_WIDTH - 100);
+		viewport2.Height = WIN_HEIGHT - 100;
+		viewport2.TopLeftX = WIN_WIDTH - 100;
+		viewport2.TopLeftY = 0;
+		viewport2.MinDepth = 0.0f;
+		viewport2.MaxDepth = 1.0f;
+
+		D3D12_VIEWPORT viewport3{};
+		viewport3.Width = WIN_WIDTH - 100;
+		viewport3.Height = WIN_HEIGHT - (WIN_HEIGHT - 100);
+		viewport3.TopLeftX = 0;
+		viewport3.TopLeftY = WIN_HEIGHT - 100;
+		viewport3.MinDepth = 0.0f;
+		viewport3.MaxDepth = 1.0f;
+
+		D3D12_VIEWPORT viewport4{};
+		viewport4.Width = WIN_WIDTH - (WIN_WIDTH - 100);
+		viewport4.Height = WIN_HEIGHT - (WIN_HEIGHT - 100);
+		viewport4.TopLeftX = WIN_WIDTH - 100;
+		viewport4.TopLeftY = WIN_HEIGHT - 100;
+		viewport4.MinDepth = 0.0f;
+		viewport4.MaxDepth = 1.0f;
 
 		//シザー矩形
 		D3D12_RECT scissorRect{};
@@ -435,7 +490,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		scissorRect.bottom = scissorRect.top + WIN_HEIGHT;
 		commandList->RSSetScissorRects(1, &scissorRect);
 
-		commandList->SetPipelineState(pipelineState.Get());
+		commandList->SetPipelineState(usingPipelineState.Get());
 		commandList->SetGraphicsRootSignature(rootSignature.Get());
 
 		//プリミティブ形状設定
@@ -445,7 +500,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		commandList->IASetVertexBuffers(0, 1, &vbView);
 
 		//描画コマンド
-		commandList->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
+		commandList->RSSetViewports(1, &viewport);
+		if (isSquare) {
+			commandList->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
+		}
+		else {
+			commandList->DrawInstanced(3, 1, 0, 0); // 最初3つの頂点を使って描画
+		}
+		commandList->RSSetViewports(1, &viewport2);
+		if (isSquare) {
+			commandList->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
+		}
+		else {
+			commandList->DrawInstanced(3, 1, 0, 0); // 最初3つの頂点を使って描画
+		}
+		commandList->RSSetViewports(1, &viewport3);
+		if (isSquare) {
+			commandList->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
+		}
+		else {
+			commandList->DrawInstanced(3, 1, 0, 0); // 最初3つの頂点を使って描画
+		}
+		commandList->RSSetViewports(1, &viewport4);
+		if (isSquare) {
+			commandList->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
+		}
+		else {
+			commandList->DrawInstanced(3, 1, 0, 0); // 最初3つの頂点を使って描画
+		}
 		
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
