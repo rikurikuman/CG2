@@ -6,11 +6,15 @@
 #include <vector>
 #include <string>
 #include <DirectXMath.h>
+#define DIRECTINPUT_VERSION 0x0800
 #include <d3dcompiler.h>
+#include <dinput.h>
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
 
 using namespace std;
 using namespace DirectX;
@@ -188,6 +192,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 
+	//DirectInput
+	ComPtr<IDirectInput8> directInput = nullptr;
+	result = DirectInput8Create(
+		w.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
+		(void**)&directInput, nullptr
+	);
+	assert(SUCCEEDED(result));
+
+	ComPtr<IDirectInputDevice8> keyboard = nullptr;
+	result = directInput->CreateDevice(GUID_SysKeyboard, &keyboard, NULL);
+	assert(SUCCEEDED(result));
+
+	//入力データ形式のセット
+	result = keyboard->SetDataFormat(&c_dfDIKeyboard);
+	assert(SUCCEEDED(result));
+
+	//排他制御レベルのセット
+	result = keyboard->SetCooperativeLevel(
+		hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY //左から、アクティブウィンドウ,専有しない,Winキー無効
+	);
+	assert(SUCCEEDED(result));
+
+	//以下描画データ
 	//頂点データ
 	XMFLOAT3 vertices[] = {
 		{ -0.5f, -0.5f, 0.0f }, //左下
@@ -355,6 +382,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 
+		//情報の取得開始
+		keyboard->Acquire();
+
+		//全キーの入力状態を取得する
+		BYTE key[256] = {};
+		keyboard->GetDeviceState(sizeof(key), key);
+
+		//以下描画
 		//バックバッファ番号の取得
 		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 
@@ -372,6 +407,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//画面クリア～
 		FLOAT clearColor[] = {0.1f, 0.25f, 0.5f, 0.0f}; //青っぽい色でクリアする
+		if (key[DIK_SPACE]) {
+			//赤っぽい色でクリアする
+			clearColor[0] = 0.5f;
+			clearColor[1] = 0.1f;
+			clearColor[2] = 0.1f;
+			clearColor[3] = 0.0f;
+		}
 		commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 		//描画コマンド
