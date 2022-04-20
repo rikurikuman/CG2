@@ -41,12 +41,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	HRESULT result;
 
 	//以下描画データ
+	struct Vertex
+	{
+		XMFLOAT3 pos;
+		XMFLOAT2 uv;
+	};
+
 	//頂点データ
-	XMFLOAT3 vertices[] = {
-		{ -0.5f, -0.5f, 0.0f }, //左下
-		{ -0.5f, +0.5f, 0.0f }, //左上
-		{ +0.5f, -0.5f, 0.0f }, //右下
-		{ +0.5f, +0.5f, 0.0f }, //右上
+	Vertex vertices[] = {
+		{{ -0.5f, -0.5f, 0.0f }, {0.0f, 1.0f}}, //左下
+		{{ -0.5f, +0.5f, 0.0f }, {0.0f, 0.0f}}, //左上
+		{{ +0.5f, -0.5f, 0.0f }, {1.0f, 1.0f}}, //右下
+		{{ +0.5f, +0.5f, 0.0f }, {1.0f, 0.0f}}, //右上
 	};
 
 	//頂点インデックスデータ
@@ -56,7 +62,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 
 	//頂点データ全体のサイズ
-	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * _countof(vertices));
+	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
 	//インデックスデータ全体のサイズ
 	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * _countof(indices));
 
@@ -105,7 +111,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//GPU上のバッファに対応した仮想メモリを取得
 	//これは頂点バッファのマッピング
-	XMFLOAT3* vertMap = nullptr;
+	Vertex* vertMap = nullptr;
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	assert(SUCCEEDED(result));
 	//全頂点に対して
@@ -128,7 +134,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress(); //GPU仮想アドレス
 	vbView.SizeInBytes = sizeVB; //頂点バッファのサイズ
-	vbView.StrideInBytes = sizeof(XMFLOAT3); //頂点一個のサイズ
+	vbView.StrideInBytes = sizeof(vertices[0]); //頂点一個のサイズ
 
 	//インデックスバッファビューの作成
 	D3D12_INDEX_BUFFER_VIEW ibView{};
@@ -187,6 +193,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
 		},
+		{
+			"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
 	};
 
 	// グラフィックスパイプライン設定
