@@ -46,14 +46,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{ -0.5f, -0.5f, 0.0f }, //左下
 		{ -0.5f, +0.5f, 0.0f }, //左上
 		{ +0.5f, -0.5f, 0.0f }, //右下
+		{ +0.5f, +0.5f, 0.0f }, //右上
 	};
+
+	//頂点インデックスデータ
+	uint16_t indices[] = {
+		0, 1, 2,
+		1, 2, 3
+	};
+
 	//頂点データ全体のサイズ
 	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * _countof(vertices));
+	//インデックスデータ全体のサイズ
+	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * _countof(indices));
 
 	//頂点バッファの設定
 	D3D12_HEAP_PROPERTIES heapProp{};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; //GPUへの転送用
-	//リソース設定
+	//頂点バッファリソース設定
 	D3D12_RESOURCE_DESC resDesc{};
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.Width = sizeVB;
@@ -62,7 +72,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	resDesc.MipLevels = 1;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	//生成
+	//頂点バッファ生成
 	ComPtr<ID3D12Resource> vertBuff = nullptr;
 	result = GetRDirectX()->device->CreateCommittedResource(
 		&heapProp,
@@ -74,7 +84,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	);
 	assert(SUCCEEDED(result));
 
+	//インデックスバッファリソース設定
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	resDesc.Width = sizeIB;
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	//インデックスバッファ生成
+	ComPtr<ID3D12Resource> indexBuff = nullptr;
+	result = GetRDirectX()->device->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&indexBuff)
+	);
+
 	//GPU上のバッファに対応した仮想メモリを取得
+	//これは頂点バッファのマッピング
 	XMFLOAT3* vertMap = nullptr;
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	assert(SUCCEEDED(result));
@@ -84,11 +114,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	vertBuff->Unmap(0, nullptr);
 
+	//インデックスバッファをマッピング
+	uint16_t* indexMap = nullptr;
+	result = indexBuff->Map(0, nullptr, (void**)&indexMap);
+	//全インデックスに対して
+	for (int i = 0; i < _countof(indices); i++)
+	{
+		indexMap[i] = indices[i];
+	}
+	indexBuff->Unmap(0, nullptr);
+
 	//頂点バッファビューの作成
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress(); //GPU仮想アドレス
 	vbView.SizeInBytes = sizeVB; //頂点バッファのサイズ
 	vbView.StrideInBytes = sizeof(XMFLOAT3); //頂点一個のサイズ
+
+	//インデックスバッファビューの作成
+	D3D12_INDEX_BUFFER_VIEW ibView{};
+	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+	ibView.Format = DXGI_FORMAT_R16_UINT;
+	ibView.SizeInBytes = sizeIB;
 
 	ComPtr<ID3DBlob> vsBlob = nullptr; //頂点シェーダオブジェクト
 	ComPtr<ID3DBlob> psBlob = nullptr; //ピクセルシェーダオブジェクト
@@ -313,6 +359,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//頂点バッファビューの設定コマンド
 		GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &vbView);
 
+		//インデックスバッファビューの設定コマンド
+		GetRDirectX()->cmdList->IASetIndexBuffer(&ibView);
+
 		//定数バッファビューの設定コマンド
 		GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
 
@@ -324,7 +373,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//描画コマンド
-		GetRDirectX()->cmdList->DrawInstanced(_countof(vertices), 1, 0, 0); // 全ての頂点を使って描画
+		GetRDirectX()->cmdList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0); // 全ての頂点を使って描画
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
