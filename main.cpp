@@ -469,7 +469,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	result = GetRDirectX()->device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pipelineState));
 	assert(SUCCEEDED(result));
 
-	//data
+	//いろいろ
+	XMFLOAT3 pos = { 0, 0, 0 };
+	XMFLOAT3 scale = {1, 1, 1};
+	XMFLOAT3 rot = {0, 0, 0};
+	float angle = 0.0f; //カメラの回転角
+
 	XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
 		XMConvertToRadians(45),
 		(float)WIN_WIDTH / WIN_HEIGHT,
@@ -481,7 +486,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	XMFLOAT3 target(0, 0, 0); //注視点座標
 	XMFLOAT3 up(0, 1, 0); //上方向ベクトル
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
-	float angle = 0.0f; //カメラの回転角
 
 	while (true) {
 		GetRWindow()->ProcessMessage();
@@ -505,6 +509,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			0, 1
 		);*/
 
+		if (GetKey(DIK_UP)) {
+			pos.z += 1.0f;
+		}
+		if (GetKey(DIK_DOWN)) {
+			pos.z -= 1.0f;
+		}
+		if (GetKey(DIK_RIGHT)) {
+			pos.x += 1.0f;
+		}
+		if (GetKey(DIK_LEFT)) {
+			pos.x -= 1.0f;
+		}
+
 		if (GetKey(DIK_D) || GetKey(DIK_A)) {
 			if (GetKey(DIK_D)) { angle += XMConvertToRadians(1.0f); }
 			else if (GetKey(DIK_A)) { angle += XMConvertToRadians(-1.0f); }
@@ -514,7 +531,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 		}
 
-		constMapTransform->matrix = matView * matProjection;
+		XMMATRIX matWorld = XMMatrixIdentity();
+
+		XMMATRIX matScale = XMMatrixScaling(scale.x, scale.y, scale.z);
+		
+		XMMATRIX matRot = XMMatrixIdentity();
+		matRot *= XMMatrixRotationZ(rot.z);
+		matRot *= XMMatrixRotationX(rot.x);
+		matRot *= XMMatrixRotationY(rot.y);
+
+		XMMATRIX matTrans = XMMatrixTranslation(pos.x, pos.y, pos.z);
+
+		matWorld *= matScale;
+		matWorld *= matRot;
+		matWorld *= matTrans;
+
+		constMapTransform->matrix = matWorld * matView * matProjection;
 
 		//以下描画
 		//バックバッファ番号の取得
