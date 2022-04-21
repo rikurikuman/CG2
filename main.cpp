@@ -50,10 +50,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//頂点データ
 	Vertex vertices[] = {
-		{{ 0.0f, 100.0f, 0.0f }, {0.0f, 1.0f}}, //左下
-		{{ 0.0f, 0.0f, 0.0f }, {0.0f, 0.0f}}, //左上
-		{{ 100.0f, 100.0f, 0.0f }, {1.0f, 1.0f}}, //右下
-		{{ 100.0f, 0.0f, 0.0f }, {1.0f, 0.0f}}, //右上
+		{{ -50.0f, -50.0f, 100.0f }, {0.0f, 1.0f}}, //左下
+		{{ -50.0f, +50.0f, 100.0f }, {0.0f, 0.0f}}, //左上
+		{{ +50.0f, -50.0f, 100.0f }, {1.0f, 1.0f}}, //右下
+		{{ +50.0f, +50.0f, 100.0f }, {1.0f, 0.0f}}, //右上
 	};
 
 	//頂点インデックスデータ
@@ -557,11 +557,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			constMapMaterial->color = XMFLOAT4(1, 1, 1, 1);
 		}
 
-		constMapTransform->matrix = XMMatrixIdentity();
-		constMapTransform->matrix.r[0].m128_f32[0] = 2.0f / WIN_WIDTH;
-		constMapTransform->matrix.r[1].m128_f32[1] = -2.0f / WIN_HEIGHT;
-		constMapTransform->matrix.r[3].m128_f32[0] = -1.0f;
-		constMapTransform->matrix.r[3].m128_f32[1] = 1.0f;
+		/*constMapTransform->matrix = XMMatrixOrthographicOffCenterLH(
+			0, WIN_WIDTH,
+			WIN_HEIGHT, 0,
+			0, 1
+		);*/
+
+		XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
+			XMConvertToRadians(45),
+			(float)WIN_WIDTH / WIN_HEIGHT,
+			0.1f, 1000.0f
+		);
+
+		constMapTransform->matrix = matProjection;
 
 		//描画コマンド
 		GetRDirectX()->cmdList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0); // 全ての頂点を使って描画
