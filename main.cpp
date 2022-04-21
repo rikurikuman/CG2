@@ -50,10 +50,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//頂点データ
 	Vertex vertices[] = {
-		{{ -0.4f, -0.7f, 0.0f }, {0.0f, 1.0f}}, //左下
-		{{ -0.4f, +0.7f, 0.0f }, {0.0f, 0.0f}}, //左上
-		{{ +0.4f, -0.7f, 0.0f }, {1.0f, 1.0f}}, //右下
-		{{ +0.4f, +0.7f, 0.0f }, {1.0f, 0.0f}}, //右上
+		{{ 0.0f, 100.0f, 0.0f }, {0.0f, 1.0f}}, //左下
+		{{ 0.0f, 0.0f, 0.0f }, {0.0f, 0.0f}}, //左上
+		{{ 100.0f, 100.0f, 0.0f }, {1.0f, 1.0f}}, //右下
+		{{ 100.0f, 0.0f, 0.0f }, {1.0f, 0.0f}}, //右上
 	};
 
 	//頂点インデックスデータ
@@ -246,6 +246,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		XMFLOAT4 color; //色(RGBA)
 	};
 
+	struct ConstBufferDataTransform {
+		XMMATRIX matrix; //3D変換行列
+	};
+
 	// ヒープ設定
 	D3D12_HEAP_PROPERTIES cbHeapProp{};
 	cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -270,9 +274,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	);
 	assert(SUCCEEDED(result));
 
+	ComPtr<ID3D12Resource> constBuffTransform = nullptr;
+	{
+		//transform用
+		//ヒープ設定
+		D3D12_HEAP_PROPERTIES cbHeapProp{};
+		cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+		// リソース設定
+		D3D12_RESOURCE_DESC cbResourceDesc{};
+		cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		cbResourceDesc.Width = (sizeof(ConstBufferDataTransform) + 0xff) & ~0xff; //256バイトアラインメント
+		cbResourceDesc.Height = 1;
+		cbResourceDesc.DepthOrArraySize = 1;
+		cbResourceDesc.MipLevels = 1;
+		cbResourceDesc.SampleDesc.Count = 1;
+		cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		// 定数バッファの生成
+		result = GetRDirectX()->device->CreateCommittedResource(
+			&cbHeapProp, //ヒープ設定
+			D3D12_HEAP_FLAG_NONE,
+			&cbResourceDesc, //リソース設定
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&constBuffTransform)
+		);
+		assert(SUCCEEDED(result));
+	}	
+
 	// 定数バッファのマッピング
 	ConstBufferDataMaterial* constMapMaterial = nullptr;
 	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial); //マッピング
+	assert(SUCCEEDED(result));
+	ConstBufferDataTransform* constMapTransform = nullptr;
+	result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform); //マッピング
 	assert(SUCCEEDED(result));
 
 	// 画像イメージデータ
@@ -378,8 +413,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// ルートパラメータの設定
-	D3D12_ROOT_PARAMETER rootParam[2] = {};
-	//定数バッファ0番
+	D3D12_ROOT_PARAMETER rootParam[3] = {};
+	//定数バッファ0番(Material)
 	rootParam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
 	rootParam[0].Descriptor.ShaderRegister = 0; //定数バッファ番号
 	rootParam[0].Descriptor.RegisterSpace = 0; //デフォルト値
@@ -389,6 +424,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rootParam[1].DescriptorTable.pDescriptorRanges = &descriptorRange;
 	rootParam[1].DescriptorTable.NumDescriptorRanges = 1; //デスクリプタレンジ数
 	rootParam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
+	//定数バッファ1番(Transform)
+	rootParam[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
+	rootParam[2].Descriptor.ShaderRegister = 1; //定数バッファ番号
+	rootParam[2].Descriptor.RegisterSpace = 0; //デフォルト値
+	rootParam[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
 
 	//テクスチャサンプラーの設定
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
@@ -507,12 +547,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//SRVヒープの先頭にあるSRVをルートパラメータ1番に設定
 		GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(1, srvGpuHandle);
 
+		//定数バッファビューの設定コマンド
+		GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
+
 		if (GetKey(DIK_1)) {
 			constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);
 		}
 		else {
 			constMapMaterial->color = XMFLOAT4(1, 1, 1, 1);
 		}
+
+		constMapTransform->matrix = XMMatrixIdentity();
+		constMapTransform->matrix.r[0].m128_f32[0] = 2.0f / WIN_WIDTH;
+		constMapTransform->matrix.r[1].m128_f32[1] = -2.0f / WIN_HEIGHT;
+		constMapTransform->matrix.r[3].m128_f32[0] = -1.0f;
+		constMapTransform->matrix.r[3].m128_f32[1] = 1.0f;
 
 		//描画コマンド
 		GetRDirectX()->cmdList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0); // 全ての頂点を使って描画
