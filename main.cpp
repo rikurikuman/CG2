@@ -50,10 +50,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//頂点データ
 	Vertex vertices[] = {
-		{{ -50.0f, -50.0f, 100.0f }, {0.0f, 1.0f}}, //左下
-		{{ -50.0f, +50.0f, 100.0f }, {0.0f, 0.0f}}, //左上
-		{{ +50.0f, -50.0f, 100.0f }, {1.0f, 1.0f}}, //右下
-		{{ +50.0f, +50.0f, 100.0f }, {1.0f, 0.0f}}, //右上
+		{{ -50.0f, -50.0f, 0.0f }, {0.0f, 1.0f}}, //左下
+		{{ -50.0f, +50.0f, 0.0f }, {0.0f, 0.0f}}, //左上
+		{{ +50.0f, -50.0f, 0.0f }, {1.0f, 1.0f}}, //右下
+		{{ +50.0f, +50.0f, 0.0f }, {1.0f, 0.0f}}, //右上
 	};
 
 	//頂点インデックスデータ
@@ -469,6 +469,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	result = GetRDirectX()->device->CreateGraphicsPipelineState(&pipelineDesc, IID_PPV_ARGS(&pipelineState));
 	assert(SUCCEEDED(result));
 
+	//data
+	XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
+		XMConvertToRadians(45),
+		(float)WIN_WIDTH / WIN_HEIGHT,
+		0.1f, 1000.0f
+	);
+
+	XMMATRIX matView;
+	XMFLOAT3 eye(0, 0, -100); //視点座標
+	XMFLOAT3 target(0, 0, 0); //注視点座標
+	XMFLOAT3 up(0, 1, 0); //上方向ベクトル
+	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+	float angle = 0.0f; //カメラの回転角
+
 	while (true) {
 		GetRWindow()->ProcessMessage();
 
@@ -477,6 +491,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		UpdateInput();
+
+		if (GetKey(DIK_1)) {
+			constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);
+		}
+		else {
+			constMapMaterial->color = XMFLOAT4(1, 1, 1, 1);
+		}
+
+		/*constMapTransform->matrix = XMMatrixOrthographicOffCenterLH(
+			0, WIN_WIDTH,
+			WIN_HEIGHT, 0,
+			0, 1
+		);*/
+
+		if (GetKey(DIK_D) || GetKey(DIK_A)) {
+			if (GetKey(DIK_D)) { angle += XMConvertToRadians(1.0f); }
+			else if (GetKey(DIK_A)) { angle += XMConvertToRadians(-1.0f); }
+
+			eye.x = -100 * sinf(angle);
+			eye.z = -100 * cosf(angle);
+			matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+		}
+
+		constMapTransform->matrix = matView * matProjection;
 
 		//以下描画
 		//バックバッファ番号の取得
@@ -549,27 +587,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//定数バッファビューの設定コマンド
 		GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
-
-		if (GetKey(DIK_1)) {
-			constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5f);
-		}
-		else {
-			constMapMaterial->color = XMFLOAT4(1, 1, 1, 1);
-		}
-
-		/*constMapTransform->matrix = XMMatrixOrthographicOffCenterLH(
-			0, WIN_WIDTH,
-			WIN_HEIGHT, 0,
-			0, 1
-		);*/
-
-		XMMATRIX matProjection = XMMatrixPerspectiveFovLH(
-			XMConvertToRadians(45),
-			(float)WIN_WIDTH / WIN_HEIGHT,
-			0.1f, 1000.0f
-		);
-
-		constMapTransform->matrix = matProjection;
 
 		//描画コマンド
 		GetRDirectX()->cmdList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0); // 全ての頂点を使って描画
