@@ -18,6 +18,7 @@ public:
 	D3D12_INDEX_BUFFER_VIEW ibView{};
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
+	RConstBuffer<ViewProjection> viewProjectionBuff;
 
 	Image3D() {};
 	Image3D(Texture* texture, XMFLOAT2 size);

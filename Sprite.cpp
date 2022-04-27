@@ -50,6 +50,8 @@ void Sprite::Init()
 		1, 3, 2
 	};
 
+	Vertex::CalcNormalVec(vertices, indices, _countof(indices));
+
 	//頂点データ全体のサイズ
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
 	//インデックスデータ全体のサイズ
@@ -131,13 +133,15 @@ void Sprite::Init()
 void Sprite::TransferBuffer()
 {
 	material.Transfer(materialBuff.constMap);
+	transform.Transfer(transformBuff.constMap);
 
 	XMMATRIX matProjection = XMMatrixOrthographicOffCenterLH(
 		0, GetRWindow()->GetWidth(),
 		GetRWindow()->GetHeight(), 0,
 		0, 1
 	);
-	transform.Transfer(transformBuff.constMap, matProjection);
+	
+	viewProjectionBuff.constMap->matrix = matProjection;
 }
 
 void Sprite::DrawCommands()
@@ -151,6 +155,7 @@ void Sprite::DrawCommands()
 	//定数バッファビューの設定コマンド
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(1, materialBuff.constBuff->GetGPUVirtualAddress());
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(2, transformBuff.constBuff->GetGPUVirtualAddress());
+	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
 
 	//SRVヒープから必要なテクスチャデータをセットする(背景)
 	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, texture->gpuHandle);

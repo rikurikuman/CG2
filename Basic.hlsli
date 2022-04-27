@@ -4,10 +4,16 @@ cbuffer ConstBufferDataMaterial : register(b0)
 	float4 color; // 色(RGBA)
 };
 
-// 変換行列
+// ワールド変換行列
 cbuffer ConstBufferDataTransform : register(b1)
 {
-	matrix mat; //3D変換行列
+	matrix matWorld;
+};
+
+// ビュー&射影変換行列
+cbuffer ConstBufferDataViewProjection : register(b2)
+{
+	matrix matViewProjection;
 };
 
 // 頂点シェーダーの出力構造体

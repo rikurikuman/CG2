@@ -327,7 +327,7 @@ void RDirectX::Init() {
 	descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// ルートパラメータの設定
-	D3D12_ROOT_PARAMETER rootParam[3] = {};
+	D3D12_ROOT_PARAMETER rootParam[4] = {};
 	//テクスチャレジスタ0番
 	rootParam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //デスクリプタテーブル
 	rootParam[0].DescriptorTable.pDescriptorRanges = &descriptorRange;
@@ -343,6 +343,11 @@ void RDirectX::Init() {
 	rootParam[2].Descriptor.ShaderRegister = 1; //定数バッファ番号
 	rootParam[2].Descriptor.RegisterSpace = 0; //デフォルト値
 	rootParam[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
+	//定数バッファ2番(Transform)
+	rootParam[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
+	rootParam[3].Descriptor.ShaderRegister = 2; //定数バッファ番号
+	rootParam[3].Descriptor.RegisterSpace = 0; //デフォルト値
+	rootParam[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
 
 	//テクスチャサンプラーの設定
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};

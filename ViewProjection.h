@@ -1,6 +1,11 @@
 #pragma once
 #include <DirectXMath.h>
 
+struct ViewProjectionBuffer
+{
+	DirectX::XMMATRIX matrix;
+};
+
 class ViewProjection
 {
 public:
@@ -16,4 +21,10 @@ public:
 
 	//メンバ変数の情報で各行列を生成する
 	void UpdateMatrix();
+
+	/// <summary>
+	/// 定数バッファへ転送
+	/// </summary>
+	/// <param name="target">対象のバッファへのポインタ</param>
+	void Transfer(ViewProjectionBuffer* target);
 };

@@ -31,6 +31,8 @@ void Image3D::Init()
 		1, 3, 2
 	};
 
+	Vertex::CalcNormalVec(vertices, indices, _countof(indices));
+
 	//頂点データ全体のサイズ
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
 	//インデックスデータ全体のサイズ
@@ -112,7 +114,8 @@ void Image3D::Init()
 void Image3D::TransferBuffer(ViewProjection viewprojection)
 {
 	material.Transfer(materialBuff.constMap);
-	transform.Transfer(transformBuff.constMap, viewprojection.matrix);
+	transform.Transfer(transformBuff.constMap);
+	viewProjectionBuff.constMap->matrix = viewprojection.matrix;
 }
 
 void Image3D::DrawCommands()
@@ -126,6 +129,7 @@ void Image3D::DrawCommands()
 	//定数バッファビューの設定コマンド
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(1, materialBuff.constBuff->GetGPUVirtualAddress());
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(2, transformBuff.constBuff->GetGPUVirtualAddress());
+	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
 
 	//SRVヒープから必要なテクスチャデータをセットする(背景)
 	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, texture->gpuHandle);

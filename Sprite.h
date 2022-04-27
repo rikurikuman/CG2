@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Transform.h"
 #include "RConstBuffer.h"
+#include "ViewProjection.h"
 
 class Sprite
 {
@@ -19,6 +20,7 @@ public:
 	D3D12_INDEX_BUFFER_VIEW ibView{};
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
+	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
 	Sprite(Texture* texture);
 	Sprite(Texture* texture, XMFLOAT2 size);
