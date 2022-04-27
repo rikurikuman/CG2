@@ -54,7 +54,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Sprite sprite(texB);
 	Image3D image(texA, { 1, 1 });
-	Cube cube(texA, { 1, 1 });
+	Cube cubeA(texA, { 1, 1 });
+	Cube cubeB(texA, { 1, 1 });
+	cubeB.transform.position = { 0, 0, 10 };
 
 	Transform transform;
 
@@ -82,24 +84,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		if (GetKey(DIK_SPACE)) {
-			cube.transform.rotation.z += XMConvertToRadians(2.0f);
+			cubeA.transform.rotation.z += XMConvertToRadians(2.0f);
 		}
 
 		if (GetKey(DIK_UP)) {
-			cube.transform.position.y += 0.1f;
+			cubeA.transform.position.y += 0.1f;
 		}
 		if (GetKey(DIK_DOWN)) {
-			cube.transform.position.y -= 0.1f;
+			cubeA.transform.position.y -= 0.1f;
 		}
 		if (GetKey(DIK_RIGHT)) {
-			cube.transform.position.x += 0.1f;
+			cubeA.transform.position.x += 0.1f;
 		}
 		if (GetKey(DIK_LEFT)) {
-			cube.transform.position.x -= 0.1f;
+			cubeA.transform.position.x -= 0.1f;
 		}
 
-		cube.transform.UpdateMatrix();
-		cube.UpdateFaces();
+		cubeA.transform.UpdateMatrix();
+		cubeA.UpdateFaces();
+		
+		cubeB.transform.rotation.y += XMConvertToRadians(20);
+		cubeB.transform.UpdateMatrix();
+		cubeB.UpdateFaces();
 
 		if (GetKey(DIK_W)) {
 			viewProjection.eye.z += 0.1f;
@@ -115,7 +121,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		viewProjection.UpdateMatrix();
 
-		cube.TransferBuffer(viewProjection);
+		cubeA.TransferBuffer(viewProjection);
+		cubeB.TransferBuffer(viewProjection);
 
 		sprite.transform.position = { WIN_WIDTH / 2, WIN_HEIGHT / 2, 0 };
 		sprite.transform.UpdateMatrix();
@@ -184,7 +191,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//描画コマンド
 		//sprite.DrawCommands();
-		cube.DrawCommands();
+		cubeA.DrawCommands();
+		cubeB.DrawCommands();
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
