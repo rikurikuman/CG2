@@ -1,5 +1,6 @@
 #include "Image3D.h"
 #include "RDirectX.h"
+#include "Vertex.h"
 
 Image3D::Image3D(Texture* texture, XMFLOAT2 size)
 {
@@ -15,24 +16,19 @@ void Image3D::Init()
 	HRESULT result;
 
 	//以下描画データ
-	struct Vertex
-	{
-		XMFLOAT3 pos;
-		XMFLOAT2 uv;
-	};
 
 	//頂点データ
 	Vertex vertices[] = {
-		{{ -0.5f * size.x, -0.5f * size.y, 0.0f }, {0.0f, 1.0f}}, //左下
-		{{ -0.5f * size.x,  0.5f * size.y, 0.0f }, {0.0f, 0.0f}}, //左上
-		{{  0.5f * size.x, -0.5f * size.y, 0.0f }, {1.0f, 1.0f}}, //右下
-		{{  0.5f * size.x,  0.5f * size.y, 0.0f }, {1.0f, 0.0f}}, //右上
+		{{ -0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {0.0f, 1.0f}}, //左下
+		{{ -0.5f * size.x,  0.5f * size.y, 0.0f }, {}, {0.0f, 0.0f}}, //左上
+		{{  0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {1.0f, 1.0f}}, //右下
+		{{  0.5f * size.x,  0.5f * size.y, 0.0f }, {}, {1.0f, 0.0f}}, //右上
 	};
 
 	//頂点インデックスデータ
 	uint16_t indices[] = {
 		0, 1, 2,
-		1, 2, 3
+		1, 3, 2
 	};
 
 	//頂点データ全体のサイズ

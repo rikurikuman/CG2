@@ -20,12 +20,12 @@ Cube::Cube(Texture* texture, XMFLOAT2 size)
 
 	//éGÇ…ÉLÉÖÅ[ÉuÇ…Ç∑ÇÈÇÊ
 	faces[Direction::Front].transform.position = { 0, 0, -size.x / 2.0f };
-	faces[Direction::Left].transform.position = { size.x / 2.0f, 0, 0 };
-	faces[Direction::Left].transform.rotation.y = XMConvertToRadians(90);
+	faces[Direction::Right].transform.position = { -size.x / 2.0f, 0, 0 };
+	faces[Direction::Right].transform.rotation.y = XMConvertToRadians(90);
 	faces[Direction::Back].transform.position = { 0, 0, size.x / 2.0f };
 	faces[Direction::Back].transform.rotation.y = XMConvertToRadians(180);
-	faces[Direction::Right].transform.position = { -size.x / 2.0f, 0, 0 };
-	faces[Direction::Right].transform.rotation.y = XMConvertToRadians(270);
+	faces[Direction::Left].transform.position = { size.x / 2.0f, 0, 0 };
+	faces[Direction::Left].transform.rotation.y = XMConvertToRadians(270);
 	faces[Direction::Top].transform.position = { 0, size.y / 2.0f, 0 };
 	faces[Direction::Top].transform.rotation = { XMConvertToRadians(90), XMConvertToRadians(180), 0};
 	faces[Direction::Bottom].transform.position = { 0, -size.y / 2.0f, 0 };
