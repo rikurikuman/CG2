@@ -4,10 +4,10 @@
 #include <cassert>
 #include <wrl.h>
 #include <vector>
+#include "Texture.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 using namespace Microsoft::WRL;
 
@@ -21,9 +21,14 @@ public:
 	ComPtr<ID3D12GraphicsCommandList> cmdList = nullptr;
 	ComPtr<ID3D12CommandQueue> cmdQueue = nullptr;
 	ComPtr<ID3D12DescriptorHeap> rtvHeap = nullptr;
+	ComPtr<ID3D12DescriptorHeap> srvHeap = nullptr;
 	std::vector<ComPtr<ID3D12Resource>> backBuffers;
 	ComPtr<ID3D12Fence> fence = nullptr;
 	UINT64 fenceVal = 0;
+	ComPtr<ID3DBlob> basicVSBlob = nullptr; //頂点シェーダオブジェクト
+	ComPtr<ID3DBlob> basicPSBlob = nullptr; //ピクセルシェーダオブジェクト
+	ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+	ComPtr<ID3D12PipelineState> pipelineState = nullptr;
 
 	void Init();
 };

@@ -19,6 +19,14 @@ private:
 	MSG msg{};
 
 public:
+	int GetWidth() {
+		return windowWidth;
+	}
+
+	int GetHeight() {
+		return windowHeight;
+	}
+
 	WNDCLASSEX GetWindowClassEx() {
 		return wndClassEx;
 	}

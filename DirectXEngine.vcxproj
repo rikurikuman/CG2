@@ -141,10 +141,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Image3D.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Obj3D.cpp" />
     <ClCompile Include="RDirectX.cpp" />
     <ClCompile Include="RInput.cpp" />
     <ClCompile Include="RWindow.cpp" />
+    <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Vector2D.cpp" />
+    <ClCompile Include="Vector3D.cpp" />
+    <ClCompile Include="ViewProjection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicPS.hlsl">
@@ -161,9 +171,20 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cube.h" />
+    <ClInclude Include="Image3D.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Obj3D.h" />
+    <ClInclude Include="RConstBuffer.h" />
     <ClInclude Include="RDirectX.h" />
     <ClInclude Include="RInput.h" />
     <ClInclude Include="RWindow.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Vector2D.h" />
+    <ClInclude Include="Vector3D.h" />
+    <ClInclude Include="ViewProjection.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Basic.hlsli" />
