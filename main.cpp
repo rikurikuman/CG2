@@ -55,7 +55,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Sprite sprite(texB);
 	Image3D image(texA, { 1, 1 });
 	Cube cube(texA, { 1, 1 });
-	cube.SetTexture(texB, Cube::Direction::Front);
 
 	Transform transform;
 
@@ -132,10 +131,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET; //After:描画へ
 		GetRDirectX()->cmdList->ResourceBarrier(1, &barrierDesc);
 
-		//バックバッファを描画先にする
+		//バックバッファを描画先にする(レンダーターゲットの設定)
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetRDirectX()->rtvHeap->GetCPUDescriptorHandleForHeapStart();
 		rtvHandle.ptr += bbIndex * GetRDirectX()->device->GetDescriptorHandleIncrementSize(GetRDirectX()->rtvHeap->GetDesc().Type);
-		GetRDirectX()->cmdList->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
+
+		//深度ステンシルも設定
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetRDirectX()->dsvHeap->GetCPUDescriptorHandleForHeapStart();
+
+		//セット
+		GetRDirectX()->cmdList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
 
 		//画面クリア～
 		FLOAT clearColor[] = { 0.1f, 0.25f, 0.5f, 0.0f }; //青っぽい色でクリアする
@@ -147,6 +151,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			clearColor[3] = 0.0f;
 		}
 		GetRDirectX()->cmdList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		GetRDirectX()->cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 		//描画コマンド
 		//ビューポート設定コマンド
@@ -178,7 +183,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetDescriptorHeaps(1, &_heap);
 
 		//描画コマンド
-		sprite.DrawCommands();
+		//sprite.DrawCommands();
 		cube.DrawCommands();
 
 		//リソースバリアを表示に戻す

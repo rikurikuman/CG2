@@ -23,6 +23,8 @@ public:
 	ComPtr<ID3D12DescriptorHeap> rtvHeap = nullptr;
 	ComPtr<ID3D12DescriptorHeap> srvHeap = nullptr;
 	std::vector<ComPtr<ID3D12Resource>> backBuffers;
+	ComPtr<ID3D12Resource> depthBuff = nullptr;
+	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12Fence> fence = nullptr;
 	UINT64 fenceVal = 0;
 	ComPtr<ID3DBlob> basicVSBlob = nullptr; //頂点シェーダオブジェクト
