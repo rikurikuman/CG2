@@ -7,11 +7,32 @@ Cube::Cube(XMFLOAT2 size)
 	for (int i = 0; i < 6; i++) {
 		faces[i].SetParent(this);
 	}
+
+	for (int i = 0; i < 4; i++) {
+		faces[i].size = size;
+	}
+	for (int i = 4; i < 6; i++) {
+		float dekaihou = max(size.x, size.y);
+		faces[i].size = { dekaihou, dekaihou };
+	}
 }
 
 Cube::Cube(Texture* texture, XMFLOAT2 size)
 {
 	this->size = size;
+	for (int i = 0; i < 6; i++) {
+		faces[i].SetParent(this);
+		faces[i].texture = texture;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		faces[i].size = size;
+	}
+	for (int i = 4; i < 6; i++) {
+		float dekaihou = max(size.x, size.y);
+		faces[i].size = { dekaihou, dekaihou };
+	}
+
 	for (int i = 0; i < 6; i++) {
 		faces[i].SetParent(this);
 		faces[i].texture = texture;

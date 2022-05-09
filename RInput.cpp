@@ -1,6 +1,6 @@
 #include "RInput.h"
 
-#define DIRECTINPUT_VERSION 0x0800
+#define DIRECTINPUT_VERSION_ 0x0800
 #include <memory>
 #include <cassert>
 #include <wrl.h>
@@ -21,7 +21,7 @@ void InitInput()
 {
 	HRESULT result;
 	result = DirectInput8Create(
-		GetRWindow()->GetWindowClassEx().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
+		GetRWindow()->GetWindowClassEx().hInstance, DIRECTINPUT_VERSION_, IID_IDirectInput8,
 		(void**)&directInput, nullptr
 	);
 	assert(SUCCEEDED(result));

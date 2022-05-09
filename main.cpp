@@ -47,14 +47,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//‚¢‚ë‚¢‚ë
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
-	Texture* texB = TextureManager::Load("Resources/ougi.png");
+	Texture* texB = TextureManager::Load("Resources/bg.png");
 
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
 
 	Sprite sprite(texB);
 	Image3D image(texA, { 1, 1 });
-	Cube cubeA(texA, { 1, 1 });
+	Cube cubeA(texB, { 1.768f, 1 });
 	Cube cubeB(texA, { 1, 1 });
 	cubeB.transform.position = { 0, 0, 10 };
 
@@ -84,7 +84,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		if (GetKey(DIK_SPACE)) {
-			cubeA.transform.rotation.z += XMConvertToRadians(2.0f);
+			cubeA.transform.rotation.z += XMConvertToRadians(10.0f);
 		}
 
 		if (GetKey(DIK_UP)) {
@@ -103,7 +103,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cubeA.transform.UpdateMatrix();
 		cubeA.UpdateFaces();
 		
-		cubeB.transform.rotation.y += XMConvertToRadians(20);
+		cubeB.transform.rotation.y += XMConvertToRadians(5);
 		cubeB.transform.UpdateMatrix();
 		cubeB.UpdateFaces();
 
