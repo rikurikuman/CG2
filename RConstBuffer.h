@@ -49,13 +49,13 @@ public:
 		UnMap();
 	}
 
-	inline void Map() {
+	void Map() {
 		HRESULT result;
 		result = constBuff->Map(0, nullptr, (void**)&constMap); //マッピング
 		assert(SUCCEEDED(result));
 	}
 
-	inline void UnMap() {
+	void UnMap() {
 		constBuff->Unmap(0, nullptr);
 	}
 };

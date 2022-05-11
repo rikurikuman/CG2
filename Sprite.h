@@ -34,3 +34,33 @@ public:
 	void DrawCommands();
 };
 
+class SpriteManager
+{
+public:
+	static SpriteManager* GetInstance() {
+		static SpriteManager instance;
+		return &instance;
+	}
+
+	RootSignature GetRootSignature() {
+		return rootSignature;
+	}
+
+	GraphicsPipeline GetGraphicsPipeline() {
+		return pipelineState;
+	}
+
+private:
+	SpriteManager() {
+		Init();
+	};
+	~SpriteManager() = default;
+	SpriteManager(const SpriteManager& a) {};
+	SpriteManager& operator=(const SpriteManager&) { return *this; }
+
+	void Init();
+
+	RootSignature rootSignature;
+	GraphicsPipeline pipelineState;
+};
+

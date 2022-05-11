@@ -179,8 +179,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		scissorRect.bottom = scissorRect.top + WIN_HEIGHT;
 		GetRDirectX()->cmdList->RSSetScissorRects(1, &scissorRect);
 
-		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.Get());
-		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.Get());
+		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
+		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
 
 		//プリミティブ形状設定
 		GetRDirectX()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -190,7 +190,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetDescriptorHeaps(1, &_heap);
 
 		//描画コマンド
-		//sprite.DrawCommands();
+
+		GetRDirectX()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
+		GetRDirectX()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
+
+		sprite.DrawCommands();
+
+		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
+		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
+
 		cubeA.DrawCommands();
 		cubeB.DrawCommands();
 

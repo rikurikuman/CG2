@@ -142,12 +142,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Image3D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Obj3D.cpp" />
     <ClCompile Include="RDirectX.cpp" />
     <ClCompile Include="RInput.cpp" />
+    <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="RWindow.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -173,12 +175,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Obj3D.h" />
     <ClInclude Include="RConstBuffer.h" />
     <ClInclude Include="RDirectX.h" />
     <ClInclude Include="RInput.h" />
+    <ClInclude Include="RootSignature.h" />
     <ClInclude Include="RWindow.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
