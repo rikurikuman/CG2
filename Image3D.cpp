@@ -2,7 +2,7 @@
 #include "RDirectX.h"
 #include "Vertex.h"
 
-Image3D::Image3D(Texture* texture, XMFLOAT2 size)
+Image3D::Image3D(Texture* texture, Vector2 size)
 {
 	this->texture = texture;
 	this->size.x = size.x;
@@ -26,7 +26,7 @@ void Image3D::Init()
 	};
 
 	//頂点インデックスデータ
-	uint16_t indices[] = {
+	UINT indices[] = {
 		0, 1, 2,
 		1, 3, 2
 	};

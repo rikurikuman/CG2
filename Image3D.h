@@ -3,6 +3,7 @@
 #include "RConstBuffer.h"
 #include "Material.h"
 #include "Texture.h"
+#include "Vector2.h"
 
 class Image3D final : public Obj3D
 {
@@ -10,7 +11,7 @@ public:
 	Texture* texture = nullptr;
 	Material material;
 	//TransformÇÕObj3DÇ…Ç†ÇÈ
-	XMFLOAT2 size = { 1, 1 };
+	Vector2 size = { 1, 1 };
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
@@ -21,7 +22,7 @@ public:
 	RConstBuffer<ViewProjection> viewProjectionBuff;
 
 	Image3D() {};
-	Image3D(Texture* texture, XMFLOAT2 size);
+	Image3D(Texture* texture, Vector2 size);
 
 	//èâä˙âªèàóù
 	void Init();

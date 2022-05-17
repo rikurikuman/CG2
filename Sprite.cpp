@@ -1,12 +1,10 @@
 #include "Sprite.h"
 #include <d3d12.h>
-#include <DirectXMath.h>
 #include "RDirectX.h"
 #include "RWindow.h"
 #include "Vertex.h"
 
 using namespace Microsoft::WRL;
-using namespace DirectX;
 
 Sprite::Sprite(Texture* texture)
 {
@@ -19,7 +17,7 @@ Sprite::Sprite(Texture* texture)
 	Init();
 }
 
-Sprite::Sprite(Texture* texture, XMFLOAT2 size)
+Sprite::Sprite(Texture* texture, Vector2 size)
 {
 	this->texture = texture;
 
@@ -45,7 +43,7 @@ void Sprite::Init()
 	};
 
 	//頂点インデックスデータ
-	uint16_t indices[] = {
+	UINT indices[] = {
 		0, 1, 2,
 		1, 3, 2
 	};
@@ -135,9 +133,9 @@ void Sprite::TransferBuffer()
 	material.Transfer(materialBuff.constMap);
 	transform.Transfer(transformBuff.constMap);
 
-	XMMATRIX matProjection = XMMatrixOrthographicOffCenterLH(
+	Matrix4 matProjection = Matrix4::OrthoGraphicProjection(
 		0, GetRWindow()->GetWidth(),
-		GetRWindow()->GetHeight(), 0,
+		0, GetRWindow()->GetHeight(),
 		0, 1
 	);
 	
@@ -242,10 +240,10 @@ void SpriteManager::Init()
 	};
 
 	// シェーダーの設定
-	pipelineState.desc.VS.pShaderBytecode = GetRDirectX()->basicVSBlob->GetBufferPointer();
-	pipelineState.desc.VS.BytecodeLength = GetRDirectX()->basicVSBlob->GetBufferSize();
-	pipelineState.desc.PS.pShaderBytecode = GetRDirectX()->basicPSBlob->GetBufferPointer();
-	pipelineState.desc.PS.BytecodeLength = GetRDirectX()->basicPSBlob->GetBufferSize();
+	pipelineState.desc.VS.pShaderBytecode = GetRDirectX()->basicVS.shaderBlob->GetBufferPointer();
+	pipelineState.desc.VS.BytecodeLength = GetRDirectX()->basicVS.shaderBlob->GetBufferSize();
+	pipelineState.desc.PS.pShaderBytecode = GetRDirectX()->basicPS.shaderBlob->GetBufferPointer();
+	pipelineState.desc.PS.BytecodeLength = GetRDirectX()->basicPS.shaderBlob->GetBufferSize();
 
 	// サンプルマスクの設定
 	pipelineState.desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; //標準

@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "RootSignature.h"
 #include "GraphicsPipeline.h"
+#include "Shader.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -29,8 +30,10 @@ public:
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12Fence> fence = nullptr;
 	UINT64 fenceVal = 0;
-	ComPtr<ID3DBlob> basicVSBlob = nullptr; //頂点シェーダオブジェクト
-	ComPtr<ID3DBlob> basicPSBlob = nullptr; //ピクセルシェーダオブジェクト
+	//ComPtr<ID3DBlob> basicVSBlob = nullptr; //頂点シェーダオブジェクト
+	//ComPtr<ID3DBlob> basicPSBlob = nullptr; //ピクセルシェーダオブジェクト
+	Shader basicVS;
+	Shader basicPS;
 	//ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 	//ComPtr<ID3D12PipelineState> pipelineState = nullptr;
 	RootSignature rootSignature;

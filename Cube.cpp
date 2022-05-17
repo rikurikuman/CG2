@@ -1,7 +1,7 @@
 #include "Cube.h"
-#include "Vector3D.h"
+#include "Vector3.h"
 
-Cube::Cube(XMFLOAT2 size)
+Cube::Cube(Vector2 size)
 {
 	this->size = size;
 	for (int i = 0; i < 6; i++) {
@@ -17,7 +17,7 @@ Cube::Cube(XMFLOAT2 size)
 	}
 }
 
-Cube::Cube(Texture* texture, XMFLOAT2 size)
+Cube::Cube(Texture* texture, Vector2 size)
 {
 	this->size = size;
 	for (int i = 0; i < 6; i++) {
@@ -42,15 +42,15 @@ Cube::Cube(Texture* texture, XMFLOAT2 size)
 	//ŽG‚ÉƒLƒ…[ƒu‚É‚·‚é‚æ
 	faces[Direction::Front].transform.position = { 0, 0, -size.x / 2.0f };
 	faces[Direction::Right].transform.position = { -size.x / 2.0f, 0, 0 };
-	faces[Direction::Right].transform.rotation.y = XMConvertToRadians(90);
+	faces[Direction::Right].transform.rotation.y = Util::AngleToRadian(90);
 	faces[Direction::Back].transform.position = { 0, 0, size.x / 2.0f };
-	faces[Direction::Back].transform.rotation.y = XMConvertToRadians(180);
+	faces[Direction::Back].transform.rotation.y = Util::AngleToRadian(180);
 	faces[Direction::Left].transform.position = { size.x / 2.0f, 0, 0 };
-	faces[Direction::Left].transform.rotation.y = XMConvertToRadians(270);
+	faces[Direction::Left].transform.rotation.y = Util::AngleToRadian(270);
 	faces[Direction::Top].transform.position = { 0, size.y / 2.0f, 0 };
-	faces[Direction::Top].transform.rotation = { XMConvertToRadians(90), XMConvertToRadians(180), 0};
+	faces[Direction::Top].transform.rotation = { Util::AngleToRadian(90), Util::AngleToRadian(180), 0};
 	faces[Direction::Bottom].transform.position = { 0, -size.y / 2.0f, 0 };
-	faces[Direction::Bottom].transform.rotation = { XMConvertToRadians(-90), 0, 0 };
+	faces[Direction::Bottom].transform.rotation = { Util::AngleToRadian(-90), 0, 0 };
 }
 
 void Cube::SetTexture(Texture* texture, Direction direction)

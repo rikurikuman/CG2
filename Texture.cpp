@@ -36,15 +36,14 @@ Texture* TextureManager::Load(const string filepath)
 
 	shared_ptr<Texture> texture = shared_ptr<Texture>(new Texture());
 	texture->filePath = filepath;
-	wchar_t wfilePath[256];
-	MultiByteToWideChar(CP_ACP, 0, filepath.c_str(), -1, wfilePath, _countof(wfilePath));
+	wstring wfilePath(filepath.begin(), filepath.end());
 
 	// 画像イメージデータ
 	TexMetadata imgMetadata{};
 	ScratchImage scratchImg{};
 	// WICテクスチャのロード
 	result = LoadFromWICFile(
-		wfilePath,
+		wfilePath.c_str(),
 		WIC_FLAGS_NONE,
 		&imgMetadata, scratchImg
 	);

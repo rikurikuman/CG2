@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d12.h>
+#include "Vector2.h"
 #include "Texture.h"
 #include "Material.h"
 #include "Transform.h"
@@ -12,7 +13,7 @@ public:
 	Texture* texture = nullptr;
 	Material material;
 	Transform transform;
-	XMFLOAT2 size = { 0, 0 };
+	Vector2 size = { 0, 0 };
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
@@ -23,7 +24,7 @@ public:
 	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
 	Sprite(Texture* texture);
-	Sprite(Texture* texture, XMFLOAT2 size);
+	Sprite(Texture* texture, Vector2 size);
 
 	void Init();
 

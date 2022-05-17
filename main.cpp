@@ -18,6 +18,8 @@
 #include "ViewProjection.h"
 #include "Image3D.h"
 #include "Cube.h"
+#include "Matrix4.h"
+#include "Util.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -50,7 +52,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Texture* texB = TextureManager::Load("Resources/bg.png");
 
 	RConstBuffer<MaterialBuffer> materialBuff;
-	RConstBuffer<TransformBuffer> transformBuff;
 
 	Sprite sprite(texB);
 	Image3D image(texA, { 1, 1 });
@@ -75,6 +76,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		UpdateInput();
+
+		if (GetKeyDown(DIK_F1)) {
+			Util::debugBool = !Util::debugBool;
+		}
 
 		if (GetKey(DIK_1)) {
 			materialBuff.constMap->color = XMFLOAT4(1, 0, 0, 0.5f);
@@ -121,6 +126,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		viewProjection.UpdateMatrix();
 
+		image.TransferBuffer(viewProjection);
 		cubeA.TransferBuffer(viewProjection);
 		cubeB.TransferBuffer(viewProjection);
 

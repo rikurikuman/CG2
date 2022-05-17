@@ -265,42 +265,26 @@ void RDirectX::Init() {
 	rootSignature.Create();
 
 	//Basicシェーダ達の読み込みとコンパイル
-	ComPtr<ID3DBlob> errorBlob = nullptr; //エラーオブジェクト
-
-	result = D3DCompileFromFile(
-		L"BasicVS.hlsl", //ファイル名
-		nullptr,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"main", "vs_5_0", //エントリ名、シェーダーモデル指定
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, //デバッグ用
-		0,
-		&basicVSBlob, &errorBlob);
-	if (FAILED(result)) {
+	basicVS = Shader("BasicVS.hlsl", "main", "vs_5_0");
+	if (!basicVS.succeeded) {
 		string error;
-		error.resize(errorBlob->GetBufferSize());
+		error.resize(basicVS.errorBlob->GetBufferSize());
 
-		copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
+		copy_n((char*)basicVS.errorBlob->GetBufferPointer(),
+			basicVS.errorBlob->GetBufferSize(),
 			error.begin());
 		error += "\n";
 		OutputDebugStringA(error.c_str());
 		assert(0);
 	}
 
-	result = D3DCompileFromFile(
-		L"BasicPS.hlsl", //ファイル名
-		nullptr,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"main", "ps_5_0", //エントリ名、シェーダーモデル指定
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, //デバッグ用
-		0,
-		&basicPSBlob, &errorBlob);
-	if (FAILED(result)) {
+	basicPS = Shader("BasicPS.hlsl", "main", "ps_5_0");
+	if (!basicPS.succeeded) {
 		string error;
-		error.resize(errorBlob->GetBufferSize());
+		error.resize(basicPS.errorBlob->GetBufferSize());
 
-		copy_n((char*)errorBlob->GetBufferPointer(),
-			errorBlob->GetBufferSize(),
+		copy_n((char*)basicPS.errorBlob->GetBufferPointer(),
+			basicPS.errorBlob->GetBufferSize(),
 			error.begin());
 		error += "\n";
 		OutputDebugStringA(error.c_str());
@@ -327,10 +311,10 @@ void RDirectX::Init() {
 	};
 
 	// シェーダーの設定
-	pipelineState.desc.VS.pShaderBytecode = basicVSBlob->GetBufferPointer();
-	pipelineState.desc.VS.BytecodeLength = basicVSBlob->GetBufferSize();
-	pipelineState.desc.PS.pShaderBytecode = basicPSBlob->GetBufferPointer();
-	pipelineState.desc.PS.BytecodeLength = basicPSBlob->GetBufferSize();
+	pipelineState.desc.VS.pShaderBytecode = basicVS.shaderBlob->GetBufferPointer();
+	pipelineState.desc.VS.BytecodeLength = basicVS.shaderBlob->GetBufferSize();
+	pipelineState.desc.PS.pShaderBytecode = basicPS.shaderBlob->GetBufferPointer();
+	pipelineState.desc.PS.BytecodeLength = basicPS.shaderBlob->GetBufferSize();
 
 	// サンプルマスクの設定
 	pipelineState.desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; //標準

@@ -9,10 +9,10 @@ public:
 	};
 
 	Image3D faces[6];
-	XMFLOAT2 size = { 1, 1 };
+	Vector2 size = { 1, 1 };
 
-	Cube(XMFLOAT2 size = {1, 1});
-	Cube(Texture* texture, XMFLOAT2 size);
+	Cube(Vector2 size = {1, 1});
+	Cube(Texture* texture, Vector2 size);
 
 	/// <summary>
 	/// 指定した面のテクスチャをセットする

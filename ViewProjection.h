@@ -1,20 +1,21 @@
 #pragma once
-#include <DirectXMath.h>
+#include "Matrix4.h"
+#include "Util.h"
 
 struct ViewProjectionBuffer
 {
-	DirectX::XMMATRIX matrix;
+	Matrix4 matrix;
 };
 
 class ViewProjection
 {
 public:
-	DirectX::XMMATRIX matrix;
-	DirectX::XMFLOAT3 eye = {0, 0, 0}; //視点座標
-	DirectX::XMFLOAT3 target = {0, 0, 1}; //注視点座標
-	DirectX::XMFLOAT3 up = {0, 1, 0}; //上方向ベクトル
+	Matrix4 matrix;
+	Vector3 eye = {0, 0, 0}; //視点座標
+	Vector3 target = {0, 0, 1}; //注視点座標
+	Vector3 up = {0, 1, 0}; //上方向ベクトル
 
-	float fov = DirectX::XMConvertToRadians(45); //画角(Rad)
+	float fov = Util::AngleToRadian(45); //画角(Rad)
 	float aspect = 1; //アスペクト比(横/縦)
 	float nearclip = 0.1f; //ニアクリップ距離
 	float farclip = 1000; //ファークリップ距離

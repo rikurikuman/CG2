@@ -146,16 +146,19 @@
     <ClCompile Include="Image3D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Matrix4.cpp" />
     <ClCompile Include="Obj3D.cpp" />
     <ClCompile Include="RDirectX.cpp" />
     <ClCompile Include="RInput.cpp" />
     <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="RWindow.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="Vector2D.cpp" />
-    <ClCompile Include="Vector3D.cpp" />
+    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Vector2.cpp" />
+    <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="ViewProjection.cpp" />
   </ItemGroup>
@@ -178,17 +181,20 @@
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Matrix4.h" />
     <ClInclude Include="Obj3D.h" />
     <ClInclude Include="RConstBuffer.h" />
     <ClInclude Include="RDirectX.h" />
     <ClInclude Include="RInput.h" />
     <ClInclude Include="RootSignature.h" />
     <ClInclude Include="RWindow.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="Vector2D.h" />
-    <ClInclude Include="Vector3D.h" />
+    <ClInclude Include="Util.h" />
+    <ClInclude Include="Vector2.h" />
+    <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="ViewProjection.h" />
   </ItemGroup>
