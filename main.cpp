@@ -52,7 +52,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//いろいろ
 
 	Model model = Model::Load("Resources/hoge.obj");
+	Material hogeMate;
+	hogeMate.color = { 1, 0, 0, 1 };
 	ModelObj hogeObj(&model);
+	hogeObj.material = hogeMate;
 
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
 	Texture* texB = TextureManager::Load("Resources/bg.png");
@@ -209,13 +212,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
 
-		sprite.DrawCommands();
+		//sprite.DrawCommands();
 
 		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
 
-		cubeA.DrawCommands();
-		cubeB.DrawCommands();
+		//cubeA.DrawCommands();
+		//cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
 		//リソースバリアを表示に戻す
