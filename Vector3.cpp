@@ -9,35 +9,35 @@ Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
 Vector3::~Vector3() {}
 
-const bool Vector3::operator==(const Vector3& a) const {
+bool Vector3::operator==(const Vector3& a) const {
 	return this->x == a.x && this->y == a.y;
 }
 
-const bool Vector3::operator!=(const Vector3& a) const {
+bool Vector3::operator!=(const Vector3& a) const {
 	return this->x != a.x || this->y != a.y;
 }
 
-const Vector3 Vector3::operator+(const Vector3& a) const {
+Vector3 Vector3::operator+(const Vector3& a) const {
 	return Vector3(this->x + a.x, this->y + a.y, this->z + a.z);
 }
 
-const Vector3 Vector3::operator-(const Vector3& a) const {
+Vector3 Vector3::operator-(const Vector3& a) const {
 	return Vector3(this->x - a.x, this->y - a.y, this->z - a.z);
 }
 
-const Vector3 Vector3::operator-() const {
+Vector3 Vector3::operator-() const {
 	return Vector3(-this->x, -this->y, -this->z);
 }
 
-const Vector3 Vector3::operator*(const float a) const {
+Vector3 Vector3::operator*(const float a) const {
 	return Vector3(this->x * a, this->y * a, this->z * a);
 }
 
-const Vector3 operator*(const float a, const Vector3& b) {
+Vector3 operator*(const float a, const Vector3& b) {
 	return Vector3(b.x * a, b.y * a, b.z * a);
 }
 
-const Vector3 Vector3::operator/(const float a) const {
+Vector3 Vector3::operator/(const float a) const {
 	return Vector3(this->x / a, this->y / a, this->z / a);
 }
 

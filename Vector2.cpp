@@ -9,35 +9,35 @@ Vector2::Vector2(float x, float y) : x(x), y(y) {}
 
 Vector2::~Vector2() {}
 
-const bool Vector2::operator==(const Vector2& a) const {
+bool Vector2::operator==(const Vector2& a) const {
 	return this->x == a.x && this->y == a.y;
 }
 
-const bool Vector2::operator!=(const Vector2& a) const {
+bool Vector2::operator!=(const Vector2& a) const {
 	return this->x != a.x || this->y != a.y;
 }
 
-const Vector2 Vector2::operator+(const Vector2& a) const {
+Vector2 Vector2::operator+(const Vector2& a) const {
 	return Vector2(this->x + a.x, this->y + a.y);
 }
 
-const Vector2 Vector2::operator-(const Vector2& a) const {
+Vector2 Vector2::operator-(const Vector2& a) const {
 	return Vector2(this->x - a.x, this->y - a.y);
 }
 
-const Vector2 Vector2::operator-() const {
+Vector2 Vector2::operator-() const {
 	return Vector2(-this->x, -this->y);
 }
 
-const Vector2 Vector2::operator*(const float a) const {
+Vector2 Vector2::operator*(const float a) const {
 	return Vector2(this->x * a, this->y * a);
 }
 
-const Vector2 operator*(const float a, const Vector2& b) {
+Vector2 operator*(const float a, const Vector2& b) {
 	return Vector2(b.x * a, b.y * a);
 }
 
-const Vector2 Vector2::operator/(const float a) const {
+Vector2 Vector2::operator/(const float a) const {
 	return Vector2(this->x / a, this->y / a);
 }
 

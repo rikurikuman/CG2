@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Color.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Image3D.cpp" />
@@ -181,6 +182,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Color.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Image3D.h" />

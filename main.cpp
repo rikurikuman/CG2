@@ -88,10 +88,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		if (GetKey(DIK_1)) {
-			materialBuff.constMap->color = XMFLOAT4(1, 0, 0, 0.5f);
+			materialBuff.constMap->color = { 1, 0, 0, 0.5f };
 		}
 		else {
-			materialBuff.constMap->color = XMFLOAT4(1, 1, 1, 1);
+			materialBuff.constMap->color = { 1, 1, 1, 1 };
 		}
 
 		if (GetKey(DIK_SPACE)) {

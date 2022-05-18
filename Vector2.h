@@ -15,19 +15,19 @@ public:
 	~Vector2();
 
 	//比較
-	const bool operator==(const Vector2& a) const;
-	const bool operator!=(const Vector2& a) const;
+	bool operator==(const Vector2& a) const;
+	bool operator!=(const Vector2& a) const;
 
 	//ベクトルの足し算
-	const Vector2 operator+(const Vector2& a) const;
+	Vector2 operator+(const Vector2& a) const;
 	//ベクトルの引き算
-	const Vector2 operator-(const Vector2& a) const;
+	Vector2 operator-(const Vector2& a) const;
 	//逆ベクトル
-	const Vector2 operator-() const;
+	Vector2 operator-() const;
 	//定数倍
-	const Vector2 operator*(const float a) const;
+	Vector2 operator*(const float a) const;
 	//定数分の1倍
-	const Vector2 operator/(const float a) const;
+	Vector2 operator/(const float a) const;
 
 	//ベクトルの足し算
 	Vector2& operator+=(const Vector2& a);
@@ -58,4 +58,4 @@ public:
 //左辺にfloatを置いたときに*, /が出来ないのでそれ対策
 
 //定数倍
-const Vector2 operator*(const float a, const Vector2& b);
+Vector2 operator*(const float a, const Vector2& b);

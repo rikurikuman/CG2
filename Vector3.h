@@ -16,19 +16,19 @@ public:
 	~Vector3();
 
 	//比較
-	const bool operator==(const Vector3& a) const;
-	const bool operator!=(const Vector3& a) const;
+	bool operator==(const Vector3& a) const;
+	bool operator!=(const Vector3& a) const;
 
 	//ベクトルの足し算
-	const Vector3 operator+(const Vector3& a) const;
+	Vector3 operator+(const Vector3& a) const;
 	//ベクトルの引き算
-	const Vector3 operator-(const Vector3& a) const;
+	Vector3 operator-(const Vector3& a) const;
 	//逆ベクトル
-	const Vector3 operator-() const;
+	Vector3 operator-() const;
 	//定数倍
-	const Vector3 operator*(const float a) const;
+	Vector3 operator*(const float a) const;
 	//定数分の1倍
-	const Vector3 operator/(const float a) const;
+	Vector3 operator/(const float a) const;
 
 	//ベクトルの足し算
 	Vector3& operator+=(const Vector3& a);
@@ -59,4 +59,4 @@ public:
 //左辺にfloatを置いたときに*, /が出来ないのでそれ対策
 
 //定数倍
-const Vector3 operator*(const float a, const Vector3& b);
+Vector3 operator*(const float a, const Vector3& b);
