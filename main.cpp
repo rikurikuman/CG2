@@ -20,6 +20,8 @@
 #include "Cube.h"
 #include "Matrix4.h"
 #include "Util.h"
+#include "Model.h"
+#include "ModelObj.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -48,6 +50,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	InitInput();
 
 	//いろいろ
+
+	Model model = Model::Load("Resources/hoge.obj");
+	ModelObj hogeObj(&model);
+
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
 	Texture* texB = TextureManager::Load("Resources/bg.png");
 
@@ -130,8 +136,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cubeA.TransferBuffer(viewProjection);
 		cubeB.TransferBuffer(viewProjection);
 
-		sprite.transform.position = { WIN_WIDTH / 2, WIN_HEIGHT / 2, 0 };
+		sprite.transform.position = { WIN_WIDTH, WIN_HEIGHT / 2, 0 };
 		sprite.transform.UpdateMatrix();
+
+		hogeObj.TransferBuffer(viewProjection);
 
 		//以下描画
 		//バックバッファ番号の取得
@@ -200,13 +208,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
 
-		sprite.DrawCommands();
+		//sprite.DrawCommands();
 
 		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
 
-		cubeA.DrawCommands();
-		cubeB.DrawCommands();
+		//cubeA.DrawCommands();
+		//cubeB.DrawCommands();
+		hogeObj.DrawCommands();
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から

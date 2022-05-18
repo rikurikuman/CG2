@@ -81,7 +81,7 @@ Vector3 Vector3::Cross(const Vector3& a) const {
 }
 
 float Vector3::Length() const {
-	return sqrt(LengthSq());
+	return sqrtf(LengthSq());
 }
 
 float Vector3::LengthSq() const {

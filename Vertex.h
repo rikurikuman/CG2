@@ -16,6 +16,6 @@ public:
 	/// <param name="list">計算する頂点群</param>
 	/// <param name="indexlist">インデックスリスト（三角形、全て時計回りであること）</param>
 	/// <param name="indexcount">インデックスの数</param>
-	static void CalcNormalVec(Vertex list[], unsigned int indexlist[], unsigned int indexcount);
+	static void CalcNormalVec(Vertex list[], const unsigned int indexlist[], const unsigned int indexcount);
 };
 

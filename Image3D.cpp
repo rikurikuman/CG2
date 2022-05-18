@@ -36,7 +36,7 @@ void Image3D::Init()
 	//頂点データ全体のサイズ
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
 	//インデックスデータ全体のサイズ
-	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * _countof(indices));
+	UINT sizeIB = static_cast<UINT>(sizeof(UINT) * _countof(indices));
 
 	//頂点バッファの設定
 	D3D12_HEAP_PROPERTIES heapProp{};
@@ -91,7 +91,7 @@ void Image3D::Init()
 	vertBuff->Unmap(0, nullptr);
 
 	//インデックスバッファをマッピング
-	uint16_t* indexMap = nullptr;
+	UINT* indexMap = nullptr;
 	result = indexBuff->Map(0, nullptr, (void**)&indexMap);
 	//全インデックスに対して
 	for (int i = 0; i < _countof(indices); i++)
@@ -107,7 +107,7 @@ void Image3D::Init()
 
 	//インデックスバッファビューの作成
 	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
-	ibView.Format = DXGI_FORMAT_R16_UINT;
+	ibView.Format = DXGI_FORMAT_R32_UINT;
 	ibView.SizeInBytes = sizeIB;
 }
 

@@ -74,7 +74,7 @@ float Vector2::Cross(const Vector2& a) const {
 }
 
 float Vector2::Length() const {
-	return sqrt(LengthSq());
+	return sqrtf(LengthSq());
 }
 
 float Vector2::LengthSq() const {

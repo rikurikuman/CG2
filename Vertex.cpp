@@ -1,10 +1,10 @@
 #include "Vertex.h"
 #include <cassert>
 
-void Vertex::CalcNormalVec(Vertex list[], unsigned int indexlist[], unsigned int indexcount)
+void Vertex::CalcNormalVec(Vertex list[], const unsigned int indexlist[], const unsigned int indexcount)
 {
 	assert(indexcount % 3 == 0);
-	for (int i = 0; i < indexcount / 3; i++) {
+	for (unsigned int i = 0; i < indexcount / 3; i++) {
 		unsigned int index0 = indexlist[i * 3 + 0];
 		unsigned int index1 = indexlist[i * 3 + 1];
 		unsigned int index2 = indexlist[i * 3 + 2];

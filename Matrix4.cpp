@@ -241,30 +241,30 @@ Matrix4 Matrix4::Scaling(float x, float y, float z)
 Matrix4 Matrix4::RotationX(float radian)
 {
 	Matrix4 mat;
-	mat[1][1] = cos(radian);
-	mat[1][2] = sin(radian);
-	mat[2][1] = -sin(radian);
-	mat[2][2] = cos(radian);
+	mat[1][1] = cosf(radian);
+	mat[1][2] = sinf(radian);
+	mat[2][1] = -sinf(radian);
+	mat[2][2] = cosf(radian);
 	return mat;
 }
 
 Matrix4 Matrix4::RotationY(float radian)
 {
 	Matrix4 mat;
-	mat[0][0] = cos(radian);
-	mat[0][2] = -sin(radian);
-	mat[2][0] = sin(radian);
-	mat[2][2] = cos(radian);
+	mat[0][0] = cosf(radian);
+	mat[0][2] = -sinf(radian);
+	mat[2][0] = sinf(radian);
+	mat[2][2] = cosf(radian);
 	return mat;
 }
 
 Matrix4 Matrix4::RotationZ(float radian)
 {
 	Matrix4 mat;
-	mat[0][0] = cos(radian);
-	mat[0][1] = sin(radian);
-	mat[1][0] = -sin(radian);
-	mat[1][1] = cos(radian);
+	mat[0][0] = cosf(radian);
+	mat[0][1] = sinf(radian);
+	mat[1][0] = -sinf(radian);
+	mat[1][1] = cosf(radian);
 	return mat;
 }
 
@@ -334,8 +334,8 @@ Matrix4 Matrix4::PerspectiveProjection(float fov, float aspect, float nearZ, flo
 	_a[0][0] = 1 / aspect;
 
 	Matrix4 _b; //’¼•û‘Ì‚É
-	_b[0][0] = 1 / tan(fov / 2);
-	_b[1][1] = 1 / tan(fov / 2);
+	_b[0][0] = 1 / tanf(fov / 2);
+	_b[1][1] = 1 / tanf(fov / 2);
 
 	Matrix4 _c; //Œ´“_‚É‚­‚Á‚Â‚¯‚Äk‚ß‚é
 	_c[2][2] = farZ * (1 / (farZ - nearZ));

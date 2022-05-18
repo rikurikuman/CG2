@@ -144,9 +144,12 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Image3D.cpp" />
+    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Matrix4.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelObj.cpp" />
     <ClCompile Include="Obj3D.cpp" />
     <ClCompile Include="RDirectX.cpp" />
     <ClCompile Include="RInput.cpp" />
@@ -160,6 +163,7 @@
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="ViewProjection.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -180,8 +184,11 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Image3D.h" />
+    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix4.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelObj.h" />
     <ClInclude Include="Obj3D.h" />
     <ClInclude Include="RConstBuffer.h" />
     <ClInclude Include="RDirectX.h" />
@@ -196,6 +203,7 @@
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="ViewProjection.h" />
   </ItemGroup>
   <ItemGroup>
