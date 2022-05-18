@@ -43,8 +43,8 @@ Model Model::Load(std::string filepath)
         }
     }
 
-    model.vertexBuff = VertexBuffer(model.vertexs);
-    model.indexBuff = IndexBuffer(model.indices);
+    model.vertexBuff.Init(model.vertexs);
+    model.indexBuff.Init(model.indices);
     model.name = filepath;
     return model;
 }

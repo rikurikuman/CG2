@@ -13,10 +13,6 @@ Image3D::Image3D(Texture* texture, Vector2 size)
 	
 void Image3D::Init()
 {
-	HRESULT result;
-
-	//以下描画データ
-
 	//頂点データ
 	Vertex vertices[] = {
 		{{ -0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {0.0f, 1.0f}}, //左下
@@ -33,82 +29,8 @@ void Image3D::Init()
 
 	Vertex::CalcNormalVec(vertices, indices, _countof(indices));
 
-	//頂点データ全体のサイズ
-	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
-	//インデックスデータ全体のサイズ
-	UINT sizeIB = static_cast<UINT>(sizeof(UINT) * _countof(indices));
-
-	//頂点バッファの設定
-	D3D12_HEAP_PROPERTIES heapProp{};
-	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; //GPUへの転送用
-	//頂点バッファリソース設定
-	D3D12_RESOURCE_DESC resDesc{};
-	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = sizeVB;
-	resDesc.Height = 1;
-	resDesc.DepthOrArraySize = 1;
-	resDesc.MipLevels = 1;
-	resDesc.SampleDesc.Count = 1;
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	//頂点バッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&vertBuff)
-	);
-	assert(SUCCEEDED(result));
-
-	//インデックスバッファリソース設定
-	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Width = sizeIB;
-	resDesc.Height = 1;
-	resDesc.DepthOrArraySize = 1;
-	resDesc.MipLevels = 1;
-	resDesc.SampleDesc.Count = 1;
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	//インデックスバッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&indexBuff)
-	);
-
-	//GPU上のバッファに対応した仮想メモリを取得
-	//これは頂点バッファのマッピング
-	Vertex* vertMap = nullptr;
-	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
-	assert(SUCCEEDED(result));
-	//全頂点に対して
-	for (int i = 0; i < _countof(vertices); i++) {
-		vertMap[i] = vertices[i];
-	}
-	vertBuff->Unmap(0, nullptr);
-
-	//インデックスバッファをマッピング
-	UINT* indexMap = nullptr;
-	result = indexBuff->Map(0, nullptr, (void**)&indexMap);
-	//全インデックスに対して
-	for (int i = 0; i < _countof(indices); i++)
-	{
-		indexMap[i] = indices[i];
-	}
-	indexBuff->Unmap(0, nullptr);
-
-	//頂点バッファビューの作成
-	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress(); //GPU仮想アドレス
-	vbView.SizeInBytes = sizeVB; //頂点バッファのサイズ
-	vbView.StrideInBytes = sizeof(vertices[0]); //頂点一個のサイズ
-
-	//インデックスバッファビューの作成
-	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
-	ibView.Format = DXGI_FORMAT_R32_UINT;
-	ibView.SizeInBytes = sizeIB;
+	vertBuff.Init(vertices, _countof(vertices));
+	indexBuff.Init(indices, _countof(indices));
 }
 
 void Image3D::TransferBuffer(ViewProjection viewprojection)
@@ -121,10 +43,10 @@ void Image3D::TransferBuffer(ViewProjection viewprojection)
 void Image3D::DrawCommands()
 {
 	//頂点バッファビューの設定コマンド
-	GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &vbView);
+	GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &vertBuff.view);
 
 	//インデックスバッファビューの設定コマンド
-	GetRDirectX()->cmdList->IASetIndexBuffer(&ibView);
+	GetRDirectX()->cmdList->IASetIndexBuffer(&indexBuff.view);
 
 	//定数バッファビューの設定コマンド
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(1, materialBuff.constBuff->GetGPUVirtualAddress());

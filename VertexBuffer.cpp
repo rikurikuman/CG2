@@ -3,6 +3,16 @@
 
 VertexBuffer::VertexBuffer(Vertex* list, unsigned int size)
 {
+	Init(list, size);
+}
+
+VertexBuffer::VertexBuffer(std::vector<Vertex> list)
+{
+	Init(list);
+}
+
+void VertexBuffer::Init(Vertex* list, unsigned int size)
+{
 	HRESULT result;
 	D3D12_HEAP_PROPERTIES heapProp{};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; //GPUへの転送用
@@ -46,7 +56,7 @@ VertexBuffer::VertexBuffer(Vertex* list, unsigned int size)
 	view.StrideInBytes = sizeof(Vertex); //頂点一個のサイズ
 }
 
-VertexBuffer::VertexBuffer(std::vector<Vertex> list)
+void VertexBuffer::Init(std::vector<Vertex> list)
 {
 	HRESULT result;
 	D3D12_HEAP_PROPERTIES heapProp{};

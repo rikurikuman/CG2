@@ -136,7 +136,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cubeA.TransferBuffer(viewProjection);
 		cubeB.TransferBuffer(viewProjection);
 
-		sprite.transform.position = { WIN_WIDTH, WIN_HEIGHT / 2, 0 };
+		sprite.transform.position = { WIN_WIDTH / 2, WIN_HEIGHT / 2, 0 };
+		sprite.transform.scale = { 0.5f, 0.5f, 1 };
 		sprite.transform.UpdateMatrix();
 
 		hogeObj.TransferBuffer(viewProjection);
@@ -208,13 +209,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
 
-		//sprite.DrawCommands();
+		sprite.DrawCommands();
 
 		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
 
-		//cubeA.DrawCommands();
-		//cubeB.DrawCommands();
+		cubeA.DrawCommands();
+		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
 		//リソースバリアを表示に戻す

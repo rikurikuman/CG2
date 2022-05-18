@@ -31,6 +31,12 @@
     <Filter Include="ヘッダー ファイル\Math">
       <UniqueIdentifier>{30a7b000-74fa-478d-87e8-7cfaf02e203a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Buffer">
+      <UniqueIdentifier>{0845dcf5-419d-4a64-8a7c-3a8809a09699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Buffer">
+      <UniqueIdentifier>{cf1fdf10-f8dc-4fb5-9bde-8769e4da290c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -99,11 +105,11 @@
     <ClCompile Include="ModelObj.cpp">
       <Filter>ソース ファイル\3D</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="IndexBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>ソース ファイル\Buffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,9 +130,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="RConstBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
@@ -177,11 +180,14 @@
     <ClInclude Include="ModelObj.h">
       <Filter>ヘッダー ファイル\3D</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="RConstBuffer.h">
+      <Filter>ヘッダー ファイル\Buffer</Filter>
     </ClInclude>
     <ClInclude Include="IndexBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>ヘッダー ファイル\Buffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

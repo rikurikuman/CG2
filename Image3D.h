@@ -4,6 +4,8 @@
 #include "Material.h"
 #include "Texture.h"
 #include "Vector2.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 class Image3D final : public Obj3D
 {
@@ -13,10 +15,8 @@ public:
 	//Transform‚ÍObj3D‚É‚ ‚é
 	Vector2 size = { 1, 1 };
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
-	D3D12_VERTEX_BUFFER_VIEW vbView{};
-	D3D12_INDEX_BUFFER_VIEW ibView{};
+	VertexBuffer vertBuff;
+	IndexBuffer indexBuff;
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
 	RConstBuffer<ViewProjection> viewProjectionBuff;

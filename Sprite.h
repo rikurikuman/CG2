@@ -6,6 +6,8 @@
 #include "Transform.h"
 #include "RConstBuffer.h"
 #include "ViewProjection.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 class Sprite
 {
@@ -15,10 +17,8 @@ public:
 	Transform transform;
 	Vector2 size = { 0, 0 };
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
-	D3D12_VERTEX_BUFFER_VIEW vbView{};
-	D3D12_INDEX_BUFFER_VIEW ibView{};
+	VertexBuffer vertBuff;
+	IndexBuffer indexBuff;
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
 	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
