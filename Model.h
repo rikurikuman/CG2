@@ -4,6 +4,7 @@
 #include "Vertex.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Material.h"
 
 class Model
 {
@@ -12,8 +13,9 @@ public:
 	IndexBuffer indexBuff;
 	std::vector<Vertex> vertexs;
 	std::vector<unsigned int> indices;
+	Material material;
 	std::string name;
 
-	static Model Load(std::string filepath);
+	static Model Load(std::string filepath, std::string filename);
 };
 

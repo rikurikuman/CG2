@@ -19,7 +19,7 @@ public:
 	IndexBuffer indexBuff;
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
-	RConstBuffer<ViewProjection> viewProjectionBuff;
+	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
 	Image3D() {};
 	Image3D(Texture* texture, Vector2 size);

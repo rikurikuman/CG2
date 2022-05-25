@@ -9,11 +9,10 @@ class ModelObj : public Obj3D
 {
 public:
 	Model* model = nullptr;
-	Material material;
 
 	RConstBuffer<MaterialBuffer> materialBuff;
 	RConstBuffer<TransformBuffer> transformBuff;
-	RConstBuffer<ViewProjection> viewProjectionBuff;
+	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
 	ModelObj() {};
 	ModelObj(Model* model) : model(model) {};

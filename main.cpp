@@ -22,6 +22,7 @@
 #include "Util.h"
 #include "Model.h"
 #include "ModelObj.h"
+#include "DebugCamera.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -51,11 +52,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//いろいろ
 
-	Model model = Model::Load("Resources/hoge.obj");
-	Material hogeMate;
-	hogeMate.color = { 1, 0, 0, 1 };
+	Model model = Model::Load("Resources/", "cube.obj");
 	ModelObj hogeObj(&model);
-	hogeObj.material = hogeMate;
 
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
 	Texture* texB = TextureManager::Load("Resources/bg.png");
@@ -76,6 +74,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	viewProjection.UpdateMatrix();
 
 	float angle = 0.0f; //カメラの回転角
+
+	DebugCamera camera({0, 10, -10});
 
 	while (true) {
 		GetRWindow()->ProcessMessage();
@@ -135,15 +135,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		viewProjection.UpdateMatrix();
 
-		image.TransferBuffer(viewProjection);
-		cubeA.TransferBuffer(viewProjection);
-		cubeB.TransferBuffer(viewProjection);
+		camera.Update();
+
+		image.TransferBuffer(camera.viewProjection);
+		cubeA.TransferBuffer(camera.viewProjection);
+		cubeB.TransferBuffer(camera.viewProjection);
 
 		sprite.transform.position = { WIN_WIDTH / 2, WIN_HEIGHT / 2, 0 };
 		sprite.transform.scale = { 0.5f, 0.5f, 1 };
 		sprite.transform.UpdateMatrix();
 
-		hogeObj.TransferBuffer(viewProjection);
+		hogeObj.TransferBuffer(camera.viewProjection);
 
 		//以下描画
 		//バックバッファ番号の取得
@@ -218,7 +220,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
 
 		//cubeA.DrawCommands();
-		//cubeB.DrawCommands();
+		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
 		//リソースバリアを表示に戻す

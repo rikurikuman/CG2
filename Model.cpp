@@ -6,12 +6,12 @@
 
 using namespace std;
 
-Model Model::Load(std::string filepath)
+Model Model::Load(string filepath, string filename)
 {
     Model model;
 
     ifstream file;
-    file.open(filepath.c_str());
+    file.open((filepath + filename).c_str());
     if (file.fail()) {
         assert(0);
     }
@@ -27,7 +27,7 @@ Model Model::Load(std::string filepath)
         string key;
         getline(line_stream, key, ' ');
 
-        if (key == "v") {
+        if (key == "v") { //頂点座標
             Vector3 pos;
             line_stream >> pos.x;
             line_stream >> pos.y;
@@ -36,14 +36,14 @@ Model Model::Load(std::string filepath)
             vertPosList.emplace_back(pos.x, pos.y, pos.z);
         }
 
-        if (key == "vt") {
+        if (key == "vt") { //頂点UV
             Vector2 texcoord;
             line_stream >> texcoord.x;
             line_stream >> texcoord.y;
             vertTexcoordList.emplace_back(texcoord.x, texcoord.y);
         }
 
-        if (key == "vn") {
+        if (key == "vn") { //頂点法線
             Vector3 normal;
 
             line_stream >> normal.x;
@@ -53,7 +53,7 @@ Model Model::Load(std::string filepath)
             vertNormalList.emplace_back(normal.x, normal.y, normal.z);
         }
 
-        if (key == "f") {
+        if (key == "f") { //インデックス
             vector<string> indexs = Util::StringSplit(line_stream.str(), " ");
             for (int i = 1; i < indexs.size(); i++) {
                 vector<string> indexText = Util::StringSplit(indexs[i], "/");
@@ -82,10 +82,16 @@ Model Model::Load(std::string filepath)
                 model.indices.emplace_back((unsigned int)model.indices.size());
             }
         }
+
+        if (key == "mtllib") { //マテリアルテンプレートライブラリ
+            string mfilename;
+            line_stream >> mfilename;
+            model.material = Material::Load(filepath, mfilename);
+        }
     }
 
     model.vertexBuff.Init(model.vertexs);
     model.indexBuff.Init(model.indices);
-    model.name = filepath;
+    model.name = filepath + filename;
     return model;
 }

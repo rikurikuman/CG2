@@ -237,7 +237,7 @@ void RDirectX::Init() {
 	rootParam[2].Descriptor.ShaderRegister = 1; //定数バッファ番号
 	rootParam[2].Descriptor.RegisterSpace = 0; //デフォルト値
 	rootParam[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-	//定数バッファ2番(Transform)
+	//定数バッファ2番(ViewProjection)
 	rootParam[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
 	rootParam[3].Descriptor.ShaderRegister = 2; //定数バッファ番号
 	rootParam[3].Descriptor.RegisterSpace = 0; //デフォルト値

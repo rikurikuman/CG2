@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Image3D.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
@@ -184,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="Color.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Image3D.h" />
     <ClInclude Include="IndexBuffer.h" />

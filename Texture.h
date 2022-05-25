@@ -31,6 +31,8 @@ public:
 		return &instance;
 	}
 
+	static Texture* GetHogeHogeTexture();
+
 	/// <summary>
 	/// ファイルからテクスチャを読み込む
 	/// </summary>
