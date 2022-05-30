@@ -61,6 +61,8 @@ Model Model::Load(string filepath, string filename)
 
         if (key == "f") { //インデックス
             vector<string> indexs = Util::StringSplit(line_stream.str(), " ");
+
+            vector<Vertex> _vertices;
             for (int i = 1; i < indexs.size(); i++) {
                 vector<string> indexText = Util::StringSplit(indexs[i], "/");
 
@@ -87,9 +89,40 @@ Model Model::Load(string filepath, string filename)
                 }
 
                 if (ok) {
-                    model.vertexs.emplace_back(vertex);
-                    model.indices.emplace_back((unsigned int)model.indices.size());
+                    _vertices.emplace_back(vertex);
                 } 
+            }
+
+            if (_vertices.size() >= 3) {
+                for (int i = 0; i < _vertices.size() - 2; i++) {
+                    int indexB = 1 + i;
+                    int indexC = 2 + i;
+
+                    //めちゃくちゃ重いから一回廃止
+                    /*size_t a = Util::IndexOf(model.vertexs, _vertices[0]);
+                    size_t b = Util::IndexOf(model.vertexs, _vertices[indexB]);
+                    size_t c = Util::IndexOf(model.vertexs, _vertices[indexC]);*/
+                    size_t a = -1;
+                    size_t b = -1;
+                    size_t c = -1;
+
+                    if (a == -1) {
+                        model.vertexs.emplace_back(_vertices[0]);
+                        a = model.vertexs.size() - 1;
+                    }
+                    if (b == -1) {
+                        model.vertexs.emplace_back(_vertices[indexB]);
+                        b = model.vertexs.size() - 1;
+                    }
+                    if (c == -1) {
+                        model.vertexs.emplace_back(_vertices[indexC]);
+                        c = model.vertexs.size() - 1;
+                    }
+
+                    model.indices.emplace_back(a);
+                    model.indices.emplace_back(b);
+                    model.indices.emplace_back(c);
+                }
             }
         }
 

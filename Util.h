@@ -71,4 +71,26 @@ namespace Util {
     //指定したdoubleがminからmaxの間に収まっていればそのまま、
     //収まっていなければ収めて返す
     double Clamp(double d, double min, double max);
+
+    //std::vectorにsearchが含まれているか調べる
+    template <class T>
+    bool Contains(std::vector<T> vector, T search) {
+        for (auto itr = vector.begin(); itr != vector.end(); itr++) {
+            if (*itr == search) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //std::vectorにsearchがいるならそのインデックスを得る
+    //ないなら-1
+    template <class T>
+    int IndexOf(std::vector<T> vector, T search) {
+        auto itr = std::find(vector.begin(), vector.end(), search);
+        if (itr == vector.end()) {
+            return -1;
+        }
+        return std::distance(vector.begin(), itr);
+    }
 }

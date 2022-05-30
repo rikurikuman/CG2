@@ -1,6 +1,11 @@
 #include "Vertex.h"
 #include <cassert>
 
+bool Vertex::operator==(const Vertex& a) const
+{
+	return pos == a.pos && normal == a.normal && uv == a.uv;
+}
+
 void Vertex::CalcNormalVec(Vertex list[], const unsigned int indexlist[], const unsigned int indexcount)
 {
 	assert(indexcount % 3 == 0);

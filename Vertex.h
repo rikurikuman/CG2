@@ -10,6 +10,8 @@ public:
 	Vector3 normal;
 	Vector2 uv;
 
+	bool operator==(const Vertex& a) const;
+
 	/// <summary>
 	/// 法線ベクトルを計算
 	/// </summary>

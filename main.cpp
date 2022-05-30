@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//‚¢‚ë‚¢‚ë
 
-	Model model = Model::Load("Resources/ground/", "ground.obj");
+	Model model = Model::Load("Resources/", "yubel.obj");
 	ModelObj hogeObj(&model);
 
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
