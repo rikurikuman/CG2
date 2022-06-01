@@ -23,6 +23,7 @@
 #include "Model.h"
 #include "ModelObj.h"
 #include "DebugCamera.h"
+#include "BillboardImage.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -52,8 +53,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//いろいろ
 
-	Model model = Model::Load("Resources/", "yubel.obj");
-	ModelObj hogeObj(&model);
+	//Model model = Model::Load("Resources/", "yubel.obj");
+	//model.material.color = { 1, 0, 0, 1 };
+	//ModelObj hogeObj(&model);
 
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
 	Texture* texB = TextureManager::Load("Resources/bg.png");
@@ -65,6 +67,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Cube cubeA(texB, { 1.768f, 1 });
 	Cube cubeB(texA, { 1, 1 });
 	cubeB.transform.position = { 0, 0, 10 };
+
+	BillboardImage bill(texA, {1, 1});
 
 	Transform transform;
 
@@ -137,6 +141,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		camera.Update();
 
+		bill.Update(camera.viewProjection);
+
 		image.TransferBuffer(camera.viewProjection);
 		cubeA.TransferBuffer(camera.viewProjection);
 		cubeB.TransferBuffer(camera.viewProjection);
@@ -145,7 +151,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprite.transform.scale = { 0.5f, 0.5f, 1 };
 		sprite.transform.UpdateMatrix();
 
-		hogeObj.TransferBuffer(camera.viewProjection);
+		//hogeObj.TransferBuffer(camera.viewProjection);
 
 		//以下描画
 		//バックバッファ番号の取得
@@ -221,7 +227,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//cubeA.DrawCommands();
 		cubeB.DrawCommands();
-		hogeObj.DrawCommands();
+		//hogeObj.DrawCommands();
+		bill.DrawCommands();
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から

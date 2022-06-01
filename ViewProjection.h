@@ -10,6 +10,8 @@ struct ViewProjectionBuffer
 class ViewProjection
 {
 public:
+	Matrix4 view;
+	Matrix4 projection;
 	Matrix4 matrix;
 	Vector3 eye = {0, 0, 0}; //視点座標
 	Vector3 target = {0, 0, 1}; //注視点座標
