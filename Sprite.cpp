@@ -88,56 +88,7 @@ void Sprite::DrawCommands()
 
 void SpriteManager::Init()
 {
-	// デスクリプタレンジの設定
-	D3D12_DESCRIPTOR_RANGE descriptorRange{};
-	descriptorRange.NumDescriptors = 1; //一度の描画に使うテクスチャが1枚なので1
-	descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRange.BaseShaderRegister = 0; //テクスチャレジスタ0番
-	descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	// ルートパラメータの設定
-	D3D12_ROOT_PARAMETER rootParam[4] = {};
-	//テクスチャレジスタ0番
-	rootParam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //デスクリプタテーブル
-	rootParam[0].DescriptorTable.pDescriptorRanges = &descriptorRange;
-	rootParam[0].DescriptorTable.NumDescriptorRanges = 1; //デスクリプタレンジ数
-	rootParam[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-	//定数バッファ0番(Material)
-	rootParam[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
-	rootParam[1].Descriptor.ShaderRegister = 0; //定数バッファ番号
-	rootParam[1].Descriptor.RegisterSpace = 0; //デフォルト値
-	rootParam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-	//定数バッファ1番(Transform)
-	rootParam[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
-	rootParam[2].Descriptor.ShaderRegister = 1; //定数バッファ番号
-	rootParam[2].Descriptor.RegisterSpace = 0; //デフォルト値
-	rootParam[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-	//定数バッファ2番(Transform)
-	rootParam[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
-	rootParam[3].Descriptor.ShaderRegister = 2; //定数バッファ番号
-	rootParam[3].Descriptor.RegisterSpace = 0; //デフォルト値
-	rootParam[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-
-	// テクスチャサンプラーの設定
-	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; //横繰り返し（タイリング）
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP; //縦繰り返し（タイリング）
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP; //奥行繰り返し（タイリング）
-	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK; //ボーダーの時は黒
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; //リニア補間
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX; //ミップマップ最大値
-	samplerDesc.MinLOD = 0.0f; //ミップマップ最小値
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; //ピクセルシェーダーからだけ見える
-
-	// ルートシグネチャの設定
-	rootSignature.desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	rootSignature.desc.pParameters = rootParam;
-	rootSignature.desc.NumParameters = _countof(rootParam); //パラメータ数
-	rootSignature.desc.pStaticSamplers = &samplerDesc;
-	rootSignature.desc.NumStaticSamplers = 1;
-
-	rootSignature.Create();
+	rootSignature = GetRDirectX()->rootSignature;
 
 	//Basicシェーダ達の読み込みとコンパイル
 	ComPtr<ID3DBlob> errorBlob = nullptr; //エラーオブジェクト
