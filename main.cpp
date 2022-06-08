@@ -141,6 +141,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		camera.Update();
 
+		bill.billboardY = true;
 		bill.Update(camera.viewProjection);
 
 		image.TransferBuffer(camera.viewProjection);

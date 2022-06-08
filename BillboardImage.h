@@ -6,13 +6,9 @@
 
 class BillboardImage : public Obj3D
 {
-private:
-	bool billboardX = false;
-	bool billboardY = false;
-	bool billboardZ = false;
-
 public:
 	Image3D image;
+	bool billboardY = false;
 
 	BillboardImage() {};
 	BillboardImage(Texture* texture, Vector2 size)
