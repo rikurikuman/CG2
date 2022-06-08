@@ -1,16 +1,13 @@
 #include <Windows.h>
 #include <d3d12.h>
-#include <dxgi1_6.h>
 #include <cassert>
 #include <wrl.h>
 #include <vector>
 #include <string>
-#include <DirectXMath.h>
 #include <d3dcompiler.h>
 #include "RWindow.h"
 #include "RDirectX.h"
 #include "RInput.h"
-#include <DirectXTex.h>
 #include "Transform.h"
 #include "Texture.h"
 #include "Sprite.h"
