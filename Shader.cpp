@@ -1,4 +1,6 @@
 #include "Shader.h"
+#include "Util.h"
+#include "RDirectX.h"
 
 Shader::Shader(std::string filename, std::string entrypoint, std::string target)
 {
@@ -11,4 +13,18 @@ Shader::Shader(std::string filename, std::string entrypoint, std::string target)
 		0,
 		&shaderBlob, &errorBlob);
 	succeeded = SUCCEEDED(result);
+}
+
+void Shader::Register(std::string id, Shader shader)
+{
+	ShaderRegister::GetInstance()->shaderRegister[id] = shader;
+}
+
+Shader Shader::GetRegistered(std::string id)
+{
+	std::unordered_map<std::string, Shader>& map = ShaderRegister::GetInstance()->shaderRegister;
+	if (map.find(id) == map.end()) {
+		return Shader();
+	}
+	return map[id];
 }

@@ -291,6 +291,9 @@ void RDirectX::Init() {
 		assert(0);
 	}
 
+	Shader::Register("basicVS", basicVS);
+	Shader::Register("basicPS", basicPS);
+
 	// グラフィックスパイプライン設定
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 		{
