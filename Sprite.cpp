@@ -6,7 +6,7 @@
 
 using namespace Microsoft::WRL;
 
-Sprite::Sprite(Texture* texture)
+Sprite::Sprite(Texture* texture, Vector2 anchor)
 {
 	this->texture = texture;
 
@@ -14,16 +14,8 @@ Sprite::Sprite(Texture* texture)
 	this->size.x = texture->resource->GetDesc().Width;
 	this->size.y = texture->resource->GetDesc().Height;
 
-	Init();
-}
-
-Sprite::Sprite(Texture* texture, Vector2 size)
-{
-	this->texture = texture;
-
-	//サイズをセットする
-	this->size.x = size.x;
-	this->size.y = size.y;
+	//アンカーポイントをセットする
+	this->anchor = anchor;
 
 	Init();
 }
@@ -32,10 +24,10 @@ void Sprite::Init()
 {
 	//頂点データ
 	Vertex vertices[] = {
-		{{ -0.5f * size.x, 0.5f * size.y, 0.0f }, {}, {0.0f, 1.0f}}, //左下
-		{{ -0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {0.0f, 0.0f}}, //左上
-		{{ 0.5f * size.x, 0.5f * size.y, 0.0f }, {}, {1.0f, 1.0f}}, //右下
-		{{ 0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {1.0f, 0.0f}}, //右上
+		{{ -anchor.x * size.x, (1 - anchor.y) * size.y, 0.0f}, {}, {0.0f, 1.0f}}, //左下
+		{{ -anchor.x * size.x, -anchor.y * size.y, 0.0f }, {}, {0.0f, 0.0f}}, //左上
+		{{ (1 - anchor.x) * size.x, (1 - anchor.y) * size.y, 0.0f }, {}, {1.0f, 1.0f}}, //右下
+		{{ (1 - anchor.x) * size.x, -anchor.y * size.y, 0.0f }, {}, {1.0f, 0.0f}}, //右上
 	};
 
 	//頂点インデックスデータ

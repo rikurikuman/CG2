@@ -50,16 +50,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//いろいろ
 
-	//Model model = Model::Load("Resources/", "yubel.obj");
-	//model.material.color = { 1, 0, 0, 1 };
-	//ModelObj hogeObj(&model);
+	Model model = Model::Load("Resources/", "yubel.obj");
+	model.material.color = { 1, 0, 0, 1 };
+	ModelObj hogeObj(&model);
 
 	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
 	Texture* texB = TextureManager::Load("Resources/bg.png");
 
 	RConstBuffer<MaterialBuffer> materialBuff;
 
-	Sprite sprite(texB);
+	Sprite sprite(texB, {0, 0});
 	Image3D image(texA, { 1, 1 });
 	Cube cubeA(texB, { 1.768f, 1 });
 	Cube cubeB(texA, { 1, 1 });
@@ -145,8 +145,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cubeA.TransferBuffer(camera.viewProjection);
 		cubeB.TransferBuffer(camera.viewProjection);
 
-		sprite.transform.position = { WIN_WIDTH / 2, WIN_HEIGHT / 2, 0 };
-		sprite.transform.scale = { 0.5f, 0.5f, 1 };
+		sprite.transform.position = { 0, 0, 0 };
+		sprite.transform.scale = { 0.1f, 0.1f, 1 };
 		sprite.transform.UpdateMatrix();
 
 		//hogeObj.TransferBuffer(camera.viewProjection);
@@ -223,9 +223,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
 		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
 
-		//cubeA.DrawCommands();
+		cubeA.DrawCommands();
 		cubeB.DrawCommands();
-		//hogeObj.DrawCommands();
+		hogeObj.DrawCommands();
 		bill.DrawCommands();
 
 		//リソースバリアを表示に戻す

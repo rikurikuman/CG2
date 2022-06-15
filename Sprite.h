@@ -16,6 +16,7 @@ public:
 	Material material;
 	Transform transform;
 	Vector2 size = { 0, 0 };
+	Vector2 anchor = { 0.5f, 0.5f };
 
 	VertexBuffer vertBuff;
 	IndexBuffer indexBuff;
@@ -23,8 +24,7 @@ public:
 	RConstBuffer<TransformBuffer> transformBuff;
 	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
-	Sprite(Texture* texture);
-	Sprite(Texture* texture, Vector2 size);
+	Sprite(Texture* texture, Vector2 anchor = { 0.5f, 0.5f });
 
 	void Init();
 
