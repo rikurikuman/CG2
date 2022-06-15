@@ -90,67 +90,12 @@ void SpriteManager::Init()
 {
 	rootSignature = GetRDirectX()->rootSignature;
 
-	//Basicシェーダ達の読み込みとコンパイル
-	ComPtr<ID3DBlob> errorBlob = nullptr; //エラーオブジェクト
-
-	// グラフィックスパイプライン設定
-	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
-		{
-			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		},
-		{
-			"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		},
-		{
-			"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		}
-	};
-
-	// シェーダーの設定
-	pipelineState.desc.VS.pShaderBytecode = GetRDirectX()->basicVS.shaderBlob->GetBufferPointer();
-	pipelineState.desc.VS.BytecodeLength = GetRDirectX()->basicVS.shaderBlob->GetBufferSize();
-	pipelineState.desc.PS.pShaderBytecode = GetRDirectX()->basicPS.shaderBlob->GetBufferPointer();
-	pipelineState.desc.PS.BytecodeLength = GetRDirectX()->basicPS.shaderBlob->GetBufferSize();
-
-	// サンプルマスクの設定
-	pipelineState.desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; //標準
+	pipelineState = GetRDirectX()->pipelineState;
 
 	// ラスタライザの設定
 	pipelineState.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	pipelineState.desc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	pipelineState.desc.RasterizerState.DepthClipEnable = false;
-
-	// ブレンドステート(半透明合成)
-	D3D12_RENDER_TARGET_BLEND_DESC& blenddesc = pipelineState.desc.BlendState.RenderTarget[0];
-	blenddesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL; //RGBA全てのチャンネルを描画
-	blenddesc.BlendEnable = true;
-	blenddesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blenddesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-	blenddesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blenddesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	// 頂点レイアウトの設定
-	pipelineState.desc.InputLayout.pInputElementDescs = inputLayout;
-	pipelineState.desc.InputLayout.NumElements = _countof(inputLayout);
-
-	// 図形の形状設定
-	pipelineState.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
-	// その他の設定
-	pipelineState.desc.NumRenderTargets = 1;
-	pipelineState.desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	pipelineState.desc.SampleDesc.Count = 1; //1ピクセルにつき1回サンプリング
-
-	//セット
-	pipelineState.desc.pRootSignature = rootSignature.ptr.Get();
 
 	pipelineState.Create();
 }

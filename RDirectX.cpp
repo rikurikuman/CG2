@@ -292,7 +292,7 @@ void RDirectX::Init() {
 	Shader::Register("basicPS", basicPS);
 
 	// グラフィックスパイプライン設定
-	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
+	InputLayout inputLayout = {
 		{
 			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
@@ -311,10 +311,8 @@ void RDirectX::Init() {
 	};
 
 	// シェーダーの設定
-	pipelineState.desc.VS.pShaderBytecode = basicVS.shaderBlob->GetBufferPointer();
-	pipelineState.desc.VS.BytecodeLength = basicVS.shaderBlob->GetBufferSize();
-	pipelineState.desc.PS.pShaderBytecode = basicPS.shaderBlob->GetBufferPointer();
-	pipelineState.desc.PS.BytecodeLength = basicPS.shaderBlob->GetBufferSize();
+	pipelineState.desc.VS = basicVS;
+	pipelineState.desc.PS = basicPS;
 
 	// サンプルマスクの設定
 	pipelineState.desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; //標準
@@ -336,8 +334,7 @@ void RDirectX::Init() {
 	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 
 	// 頂点レイアウトの設定
-	pipelineState.desc.InputLayout.pInputElementDescs = inputLayout;
-	pipelineState.desc.InputLayout.NumElements = _countof(inputLayout);
+	pipelineState.desc.InputLayout = inputLayout;
 
 	// 図形の形状設定
 	pipelineState.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
