@@ -2,7 +2,7 @@
 #include "RDirectX.h"
 #include "Vertex.h"
 
-Image3D::Image3D(Texture* texture, Vector2 size)
+Image3D::Image3D(TextureHandle texture, Vector2 size)
 {
 	this->texture = texture;
 	this->size.x = size.x;
@@ -54,7 +54,7 @@ void Image3D::DrawCommands()
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
 
 	//SRVヒープから必要なテクスチャデータをセットする(背景)
-	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, texture->gpuHandle);
+	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get(texture).gpuHandle);
 
 	//描画コマンド
 	GetRDirectX()->cmdList->DrawIndexedInstanced(6, 1, 0, 0, 0); // 全ての頂点を使って描画

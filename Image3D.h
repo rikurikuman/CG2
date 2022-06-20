@@ -10,7 +10,7 @@
 class Image3D final : public Obj3D
 {
 public:
-	Texture* texture = nullptr;
+	TextureHandle texture;
 	Material material;
 	//Transform‚ÍObj3D‚É‚ ‚é
 	Vector2 size = { 1, 1 };
@@ -22,7 +22,7 @@ public:
 	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
 	Image3D() {};
-	Image3D(Texture* texture, Vector2 size);
+	Image3D(TextureHandle texture, Vector2 size);
 
 	//‰Šú‰»ˆ—
 	void Init();

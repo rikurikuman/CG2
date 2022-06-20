@@ -3,7 +3,6 @@
 using namespace std;
 
 bool Util::debugBool = false;
-const float Util::PI = 3.1415926535897932384626f;
 
 float Util::AngleToRadian(float angle)
 {

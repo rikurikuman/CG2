@@ -4,7 +4,7 @@
 
 namespace Util {
 	extern bool debugBool;
-	extern const float PI;
+	constexpr float PI = 3.1415926535897932384626f;
 
 	//Degree‚©‚çRadian‚Ö•ÏŠ·‚·‚é
 	float AngleToRadian(float angle);

@@ -6,13 +6,14 @@
 
 using namespace Microsoft::WRL;
 
-Sprite::Sprite(Texture* texture, Vector2 anchor)
+Sprite::Sprite(TextureHandle texture, Vector2 anchor)
 {
 	this->texture = texture;
 
 	//サイズをセットする
-	this->size.x = texture->resource->GetDesc().Width;
-	this->size.y = texture->resource->GetDesc().Height;
+	
+	this->size.x = TextureManager::Get(texture).resource->GetDesc().Width;
+	this->size.y = TextureManager::Get(texture).resource->GetDesc().Height;
 
 	//アンカーポイントをセットする
 	this->anchor = anchor;
@@ -70,7 +71,7 @@ void Sprite::DrawCommands()
 	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
 
 	//SRVヒープから必要なテクスチャデータをセットする(背景)
-	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, texture->gpuHandle);
+	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get(texture).gpuHandle);
 
 	TransferBuffer();
 

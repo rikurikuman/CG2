@@ -12,7 +12,7 @@
 class Sprite
 {
 public:
-	Texture* texture = nullptr;
+	TextureHandle texture;
 	Material material;
 	Transform transform;
 	Vector2 size = { 0, 0 };
@@ -24,7 +24,7 @@ public:
 	RConstBuffer<TransformBuffer> transformBuff;
 	RConstBuffer<ViewProjectionBuffer> viewProjectionBuff;
 
-	Sprite(Texture* texture, Vector2 anchor = { 0.5f, 0.5f });
+	Sprite(TextureHandle texture, Vector2 anchor = { 0.5f, 0.5f });
 
 	void Init();
 

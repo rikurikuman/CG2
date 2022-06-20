@@ -15,7 +15,7 @@ class Material
 {
 public:
 	std::string name; //おなまえドットコム
-	Texture* texture; //テクスチャ
+	TextureHandle texture; //テクスチャ
 	Color color = {1, 1, 1, 1}; //色(RGBA)
 	Vector3 ambient = {1, 1, 1}; //環境光
 	Vector3 diffuse = {0, 0, 0}; //拡散反射光

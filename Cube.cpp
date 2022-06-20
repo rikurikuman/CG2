@@ -17,7 +17,7 @@ Cube::Cube(Vector2 size)
 	}
 }
 
-Cube::Cube(Texture* texture, Vector2 size)
+Cube::Cube(TextureHandle texture, Vector2 size)
 {
 	this->size = size;
 	for (int i = 0; i < 6; i++) {
@@ -53,13 +53,13 @@ Cube::Cube(Texture* texture, Vector2 size)
 	faces[Direction::Bottom].transform.rotation = { Util::AngleToRadian(-90), 0, 0 };
 }
 
-void Cube::SetTexture(Texture* texture, Direction direction)
+void Cube::SetTexture(TextureHandle texture, Direction direction)
 {
 	faces[direction].texture = texture;
 	faces[direction].Init();
 }
 
-void Cube::SetAllTexture(Texture* texture)
+void Cube::SetAllTexture(TextureHandle texture)
 {
 	for (int i = 0; i < 6; i++) {
 		faces[i].texture = texture;

@@ -11,13 +11,13 @@ public:
 	bool billboardY = false;
 
 	BillboardImage() {};
-	BillboardImage(Texture* texture, Vector2 size)
+	BillboardImage(TextureHandle texture, Vector2 size)
 	{
 		Init(texture, size);
 	}
 
 	//‰Šú‰»ˆ—
-	void Init(Texture* texture, Vector2 size);
+	void Init(TextureHandle texture, Vector2 size);
 
 	void Update(const ViewProjection& vp);
 

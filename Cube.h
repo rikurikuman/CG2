@@ -12,20 +12,20 @@ public:
 	Vector2 size = { 1, 1 };
 
 	Cube(Vector2 size = {1, 1});
-	Cube(Texture* texture, Vector2 size);
+	Cube(TextureHandle texture, Vector2 size);
 
 	/// <summary>
 	/// 指定した面のテクスチャをセットする
 	/// </summary>
-	/// <param name="texture">テクスチャのポインタ</param>
+	/// <param name="texture">テクスチャハンドル</param>
 	/// <param name="direction">面の向き</param>
-	void SetTexture(Texture* texture, Direction direction);
+	void SetTexture(TextureHandle texture, Direction direction);
 
 	/// <summary>
 	/// 全ての面のテクスチャをセットする
 	/// </summary>
 	/// <param name="texture"></param>
-	void SetAllTexture(Texture* texture);
+	void SetAllTexture(TextureHandle texture);
 
 	//面のTransformとかを更新する
 	void UpdateFaces();

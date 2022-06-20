@@ -1,6 +1,6 @@
 #include "BillboardImage.h"
 
-void BillboardImage::Init(Texture* texture, Vector2 size)
+void BillboardImage::Init(TextureHandle texture, Vector2 size)
 {
 	image = Image3D(texture, size);
 	image.SetParent(this);

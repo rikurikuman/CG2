@@ -51,17 +51,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//いろいろ
 
 	Model model = Model::Load("Resources/", "yubel.obj");
-	model.material.color = { 1, 0, 0, 1 };
 	ModelObj hogeObj(&model);
 
-	Texture* texA = TextureManager::Load("Resources/conflict.jpg");
-	Texture* texB = TextureManager::Load("Resources/bg.png");
+	TextureHandle texA = TextureManager::Load("Resources/conflict.jpg");
+	TextureHandle texB = TextureManager::Load("Resources/bg.png");
 
 	RConstBuffer<MaterialBuffer> materialBuff;
 
 	Sprite sprite(texB, {0, 0});
 	Image3D image(texA, { 1, 1 });
-	Cube cubeA(texB, { 1.768f, 1 });
+	Cube cubeA(texB, {1.768f, 1});
 	Cube cubeB(texA, { 1, 1 });
 	cubeB.transform.position = { 0, 0, 10 };
 
@@ -149,7 +148,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprite.transform.scale = { 0.1f, 0.1f, 1 };
 		sprite.transform.UpdateMatrix();
 
-		//hogeObj.TransferBuffer(camera.viewProjection);
+		hogeObj.TransferBuffer(camera.viewProjection);
 
 		//以下描画
 		//バックバッファ番号の取得
@@ -225,8 +224,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		cubeA.DrawCommands();
 		cubeB.DrawCommands();
-		hogeObj.DrawCommands();
 		bill.DrawCommands();
+		hogeObj.DrawCommands();
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
