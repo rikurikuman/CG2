@@ -62,12 +62,12 @@ Model Model::Load(string filepath, string filename)
         if (key == "f") { //インデックス
             vector<string> indexs = Util::StringSplit(line_stream.str(), " ");
 
-            vector<Vertex> _vertices;
+            vector<VertexPNU> _vertices;
             for (int i = 1; i < indexs.size(); i++) {
                 vector<string> indexText = Util::StringSplit(indexs[i], "/");
 
                 bool ok = false;
-                Vertex vertex;
+                VertexPNU vertex;
                 if (indexText.size() >= 1) {
                     int index = atoi(indexText[0].c_str()) - 1;
                     if (index >= 0 && vertPosList.size() > index) {

@@ -1,12 +1,12 @@
 #include "Vertex.h"
 #include <cassert>
 
-bool Vertex::operator==(const Vertex& a) const
+bool VertexPNU::operator==(const VertexPNU& a) const
 {
 	return pos == a.pos && normal == a.normal && uv == a.uv;
 }
 
-void Vertex::CalcNormalVec(Vertex list[], const unsigned int indexlist[], const unsigned int indexcount)
+void VertexPNU::CalcNormalVec(VertexPNU list[], const unsigned int indexlist[], const unsigned int indexcount)
 {
 	assert(indexcount % 3 == 0);
 	for (unsigned int i = 0; i < indexcount / 3; i++) {

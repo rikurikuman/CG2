@@ -11,7 +11,7 @@ class Model
 public:
 	VertexBuffer vertexBuff;
 	IndexBuffer indexBuff;
-	std::vector<Vertex> vertexs;
+	std::vector<VertexPNU> vertexs;
 	std::vector<unsigned int> indices;
 	Material material;
 	std::string name;

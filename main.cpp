@@ -54,17 +54,45 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Shader::Register("TestGS", Shader("Shader/TestGS.hlsl", "main", "gs_5_0"));
 	Shader::Register("TestPS", Shader("Shader/TestPS.hlsl", "main", "ps_5_0"));
 
+	RootSignature testRS = GetRDirectX()->rootSignature;
+
+	DescriptorRange descriptorRange{};
+	descriptorRange.NumDescriptors = 1; //一度の描画に使うテクスチャが1枚なので1
+	descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRange.BaseShaderRegister = 0; //テクスチャレジスタ0番
+	descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	RootParamaters rootParams(2);
+	//テクスチャレジスタ0番
+	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //デスクリプタテーブル
+	rootParams[0].DescriptorTable = DescriptorRanges{ descriptorRange };
+	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
+	//定数バッファ1番(ViewProjection)
+	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
+	rootParams[1].Descriptor.ShaderRegister = 0; //定数バッファ番号
+	rootParams[1].Descriptor.RegisterSpace = 0; //デフォルト値
+	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
+
+	testRS.desc.RootParamaters = rootParams;
+	testRS.Create();
+
 	GraphicsPipeline testPL = GetRDirectX()->pipelineState;
 	testPL.desc.VS = Shader("Shader/TestVS.hlsl", "main", "vs_5_0");
 	testPL.desc.GS = Shader("Shader/TestGS.hlsl", "main", "gs_5_0");
 	testPL.desc.PS = Shader("Shader/TestPS.hlsl", "main", "ps_5_0");
 	testPL.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	testPL.desc.InputLayout = {
+		{
+			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}
+	};
+	testPL.desc.pRootSignature = testRS.ptr.Get();
 	testPL.Create();
 
-	VertexBuffer testPoint;
-	std::vector<Vertex> list;
-
-	testPoint.Init(std::vector<Vertex> { Vertex() });
+	VertexBuffer testPoint(std::vector<VertexP> { VertexP() });
+	RConstBuffer<ViewProjectionBuffer> testViewProBuff;
 
 	///////////////////
 
@@ -241,10 +269,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
+		//////////////////
+
+		testViewProBuff.constMap->matrix = camera.viewProjection.matrix;
+
 		GetRDirectX()->cmdList->SetPipelineState(testPL.ptr.Get());
+		GetRDirectX()->cmdList->SetGraphicsRootSignature(testRS.ptr.Get());
 		GetRDirectX()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 		GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &testPoint.view);
+		GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(1, testViewProBuff.constBuff->GetGPUVirtualAddress());
 		GetRDirectX()->cmdList->DrawInstanced(1, 1, 0, 0);
+
+		///////////////////
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から

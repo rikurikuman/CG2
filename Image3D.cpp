@@ -14,7 +14,7 @@ Image3D::Image3D(TextureHandle texture, Vector2 size)
 void Image3D::Init()
 {
 	//頂点データ
-	Vertex vertices[] = {
+	VertexPNU vertices[] = {
 		{{ -0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {0.0f, 1.0f}}, //左下
 		{{ -0.5f * size.x,  0.5f * size.y, 0.0f }, {}, {0.0f, 0.0f}}, //左上
 		{{  0.5f * size.x, -0.5f * size.y, 0.0f }, {}, {1.0f, 1.0f}}, //右下
@@ -27,7 +27,7 @@ void Image3D::Init()
 		1, 3, 2
 	};
 
-	Vertex::CalcNormalVec(vertices, indices, _countof(indices));
+	VertexPNU::CalcNormalVec(vertices, indices, _countof(indices));
 
 	vertBuff.Init(vertices, _countof(vertices));
 	indexBuff.Init(indices, _countof(indices));

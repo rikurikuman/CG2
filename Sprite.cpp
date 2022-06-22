@@ -24,7 +24,7 @@ Sprite::Sprite(TextureHandle texture, Vector2 anchor)
 void Sprite::Init()
 {
 	//頂点データ
-	Vertex vertices[] = {
+	VertexPNU vertices[] = {
 		{{ -anchor.x * size.x, (1 - anchor.y) * size.y, 0.0f}, {}, {0.0f, 1.0f}}, //左下
 		{{ -anchor.x * size.x, -anchor.y * size.y, 0.0f }, {}, {0.0f, 0.0f}}, //左上
 		{{ (1 - anchor.x) * size.x, (1 - anchor.y) * size.y, 0.0f }, {}, {1.0f, 1.0f}}, //右下
@@ -37,7 +37,7 @@ void Sprite::Init()
 		1, 3, 2
 	};
 
-	Vertex::CalcNormalVec(vertices, indices, _countof(indices));
+	VertexPNU::CalcNormalVec(vertices, indices, _countof(indices));
 
 	vertBuff.Init(vertices, _countof(vertices));
 	indexBuff.Init(indices, _countof(indices));

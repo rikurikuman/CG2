@@ -3,17 +3,26 @@
 #include "Vector2.h"
 #include "Vector3.h"
 
-class Vertex
+class VertexP
+{
+public:
+	Vector3 pos;
+
+	VertexP(Vector3 pos = { 0, 0, 0 })
+		: pos(pos) {}
+};
+
+class VertexPNU
 {
 public:
 	Vector3 pos;
 	Vector3 normal;
 	Vector2 uv;
 
-	Vertex(Vector3 pos = { 0, 0, 0 }, Vector3 normal = { 0, 0, 1 }, Vector2 uv = { 0, 0 })
+	VertexPNU(Vector3 pos = { 0, 0, 0 }, Vector3 normal = { 0, 0, 1 }, Vector2 uv = { 0, 0 })
 		: pos(pos), normal(normal), uv(uv) {}
 
-	bool operator==(const Vertex& a) const;
+	bool operator==(const VertexPNU& a) const;
 
 	/// <summary>
 	/// 法線ベクトルを計算
@@ -21,6 +30,6 @@ public:
 	/// <param name="list">計算する頂点群</param>
 	/// <param name="indexlist">インデックスリスト（三角形、全て時計回りであること）</param>
 	/// <param name="indexcount">インデックスの数</param>
-	static void CalcNormalVec(Vertex list[], const unsigned int indexlist[], const unsigned int indexcount);
+	static void CalcNormalVec(VertexPNU list[], const unsigned int indexlist[], const unsigned int indexcount);
 };
 
