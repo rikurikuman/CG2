@@ -130,6 +130,9 @@
   <ItemGroup>
     <FxCompile Include="Shader\BasicPS.hlsl" />
     <FxCompile Include="Shader\BasicVS.hlsl" />
+    <FxCompile Include="Shader\TestGS.hlsl" />
+    <FxCompile Include="Shader\TestPS.hlsl" />
+    <FxCompile Include="Shader\TestVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Texture.h">
@@ -216,5 +219,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\Basic.hlsli" />
+    <None Include="Shader\Test.hlsli" />
   </ItemGroup>
 </Project>

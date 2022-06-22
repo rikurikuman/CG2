@@ -50,7 +50,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//いろいろ
 
-	Model model = Model::Load("Resources/", "yubel.obj");
+	Shader::Register("TestVS", Shader("Shader/TestVS.hlsl", "main", "vs_5_0"));
+	Shader::Register("TestGS", Shader("Shader/TestGS.hlsl", "main", "gs_5_0"));
+	Shader::Register("TestPS", Shader("Shader/TestPS.hlsl", "main", "ps_5_0"));
+
+	GraphicsPipeline testPL = GetRDirectX()->pipelineState;
+	testPL.desc.VS = Shader("Shader/TestVS.hlsl", "main", "vs_5_0");
+	testPL.desc.GS = Shader("Shader/TestGS.hlsl", "main", "gs_5_0");
+	testPL.desc.PS = Shader("Shader/TestPS.hlsl", "main", "ps_5_0");
+	testPL.Create();
+
+	Model model = Model::Load("Resources/skydome/", "skydome.obj");
 	ModelObj hogeObj(&model);
 
 	TextureHandle texA = TextureManager::Load("Resources/conflict.jpg");
@@ -62,11 +72,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Image3D image(texA, { 1, 1 });
 	Cube cubeA(texB, {1.768f, 1});
 	Cube cubeB(texA, { 1, 1 });
+	cubeA.transform.position = { 0, -10, 0 };
 	cubeB.transform.position = { 0, 0, 10 };
-
-	BillboardImage bill(texA, {1, 1});
-
-	Transform transform;
 
 	ViewProjection viewProjection;
 	viewProjection.eye = { 0, 0, -10 };
@@ -75,7 +82,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	float angle = 0.0f; //カメラの回転角
 
-	DebugCamera camera({0, 10, -10});
+	DebugCamera camera({0, 0, -10});
 
 	while (true) {
 		GetRWindow()->ProcessMessage();
@@ -137,9 +144,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		camera.Update();
 
-		bill.billboardY = true;
-		bill.Update(camera.viewProjection);
-
 		image.TransferBuffer(camera.viewProjection);
 		cubeA.TransferBuffer(camera.viewProjection);
 		cubeB.TransferBuffer(camera.viewProjection);
@@ -148,6 +152,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		sprite.transform.scale = { 0.1f, 0.1f, 1 };
 		sprite.transform.UpdateMatrix();
 
+		hogeObj.transform.scale = { 4,4,4 };
+		hogeObj.transform.UpdateMatrix();
 		hogeObj.TransferBuffer(camera.viewProjection);
 
 		//以下描画
@@ -224,8 +230,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		cubeA.DrawCommands();
 		cubeB.DrawCommands();
-		bill.DrawCommands();
 		hogeObj.DrawCommands();
+
+		GetRDirectX()->cmdList->SetPipelineState(testPL.ptr.Get());
+
+		image.DrawCommands();
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から

@@ -113,7 +113,9 @@ TextureHandle TextureManager::LoadInternal(const std::string filepath)
 		WIC_FLAGS_NONE,
 		&imgMetadata, scratchImg
 	);
-	assert(SUCCEEDED(result));
+	if (FAILED(result)) {
+		return "";
+	}
 
 	// ミップマップ生成
 	ScratchImage mipChain{};
@@ -124,6 +126,9 @@ TextureHandle TextureManager::LoadInternal(const std::string filepath)
 	if (SUCCEEDED(result)) {
 		scratchImg = std::move(mipChain);
 		imgMetadata = scratchImg.GetMetadata();
+	}
+	else {
+		return "";
 	}
 
 	//読み込んだディフューズテクスチャをSRGBとして扱う
@@ -155,7 +160,9 @@ TextureHandle TextureManager::LoadInternal(const std::string filepath)
 		nullptr,
 		IID_PPV_ARGS(&texture.resource)
 	);
-	assert(SUCCEEDED(result));
+	if (FAILED(result)) {
+		return "";
+	}
 
 	//てんそー
 	//全ミップマップについて
@@ -168,7 +175,9 @@ TextureHandle TextureManager::LoadInternal(const std::string filepath)
 			(UINT)img->rowPitch, //1ラインサイズ
 			(UINT)img->slicePitch //1枚サイズ
 		);
-		assert(SUCCEEDED(result));
+		if (FAILED(result)) {
+			return "";
+		}
 	}
 
 	return RegisterInternal(texture);

@@ -46,7 +46,7 @@ Model Model::Load(string filepath, string filename)
             Vector2 texcoord;
             line_stream >> texcoord.x;
             line_stream >> texcoord.y;
-            vertTexcoordList.emplace_back(texcoord.x, texcoord.y);
+            vertTexcoordList.emplace_back(texcoord.x, 1.0f - texcoord.y);
         }
 
         if (key == "vn") { //í∏ì_ñ@ê¸
