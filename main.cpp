@@ -58,7 +58,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	testPL.desc.VS = Shader("Shader/TestVS.hlsl", "main", "vs_5_0");
 	testPL.desc.GS = Shader("Shader/TestGS.hlsl", "main", "gs_5_0");
 	testPL.desc.PS = Shader("Shader/TestPS.hlsl", "main", "ps_5_0");
+	testPL.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	testPL.Create();
+
+	VertexBuffer testPoint;
+	std::vector<Vertex> list;
+
+	testPoint.Init(std::vector<Vertex> { Vertex() });
+
+	///////////////////
+
 
 	Model model = Model::Load("Resources/skydome/", "skydome.obj");
 	ModelObj hogeObj(&model);
@@ -233,8 +242,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		hogeObj.DrawCommands();
 
 		GetRDirectX()->cmdList->SetPipelineState(testPL.ptr.Get());
-
-		image.DrawCommands();
+		GetRDirectX()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+		GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &testPoint.view);
+		GetRDirectX()->cmdList->DrawInstanced(1, 1, 0, 0);
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から

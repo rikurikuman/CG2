@@ -10,6 +10,9 @@ public:
 	Vector3 normal;
 	Vector2 uv;
 
+	Vertex(Vector3 pos = { 0, 0, 0 }, Vector3 normal = { 0, 0, 1 }, Vector2 uv = { 0, 0 })
+		: pos(pos), normal(normal), uv(uv) {}
+
 	bool operator==(const Vertex& a) const;
 
 	/// <summary>
