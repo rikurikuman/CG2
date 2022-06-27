@@ -146,16 +146,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		if (GetKey(DIK_UP)) {
-			cubeA.transform.position.y += 0.1f;
+			cubeA.transform.position.z += 0.1f;
 		}
 		if (GetKey(DIK_DOWN)) {
-			cubeA.transform.position.y -= 0.1f;
+			cubeA.transform.position.z -= 0.1f;
 		}
 		if (GetKey(DIK_RIGHT)) {
 			cubeA.transform.position.x += 0.1f;
 		}
 		if (GetKey(DIK_LEFT)) {
 			cubeA.transform.position.x -= 0.1f;
+		}
+
+		if (GetKey(DIK_NUMPAD8)) {
+			cubeA.transform.scale.y += 0.1f;
+		}
+		if (GetKey(DIK_NUMPAD2)) {
+			cubeA.transform.scale.y -= 0.1f;
+		}
+		if (GetKey(DIK_NUMPAD6)) {
+			cubeA.transform.scale.x += 0.1f;
+		}
+		if (GetKey(DIK_NUMPAD4)) {
+			cubeA.transform.scale.x -= 0.1f;
 		}
 
 		cubeA.transform.UpdateMatrix();
