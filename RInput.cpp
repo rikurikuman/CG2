@@ -18,6 +18,7 @@ void RInput::Init() {
 void RInput::InitInternal()
 {
 	HRESULT result;
+
 	result = DirectInput8Create(
 		RWindow::GetWindowClassEx().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
 		(void**)&directInput, nullptr
@@ -94,5 +95,5 @@ bool RInput::GetMouseClickDown(int buttonNum)
 }
 
 Vector3 RInput::GetMouseMove() {
-	return Vector3(GetInstance()->mouseState.lX, GetInstance()->mouseState.lY, GetInstance()->mouseState.lZ);
+	return Vector3((float)GetInstance()->mouseState.lX, (float)GetInstance()->mouseState.lY, (float)GetInstance()->mouseState.lZ);
 }

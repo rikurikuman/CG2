@@ -102,6 +102,7 @@ Model Model::Load(string filepath, string filename)
                     /*size_t a = Util::IndexOf(model.vertexs, _vertices[0]);
                     size_t b = Util::IndexOf(model.vertexs, _vertices[indexB]);
                     size_t c = Util::IndexOf(model.vertexs, _vertices[indexC]);*/
+
                     size_t a = -1;
                     size_t b = -1;
                     size_t c = -1;
@@ -119,9 +120,9 @@ Model Model::Load(string filepath, string filename)
                         c = model.vertexs.size() - 1;
                     }
 
-                    model.indices.emplace_back(a);
-                    model.indices.emplace_back(b);
-                    model.indices.emplace_back(c);
+                    model.indices.emplace_back((UINT)a);
+                    model.indices.emplace_back((UINT)b);
+                    model.indices.emplace_back((UINT)c);
                 }
             }
         }

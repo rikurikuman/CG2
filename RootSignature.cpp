@@ -17,7 +17,7 @@ void RootSignature::Create()
 		{
 			D3D12_ROOT_DESCRIPTOR_TABLE table{};
 			if (param.DescriptorTable.size() > 0) {
-				table.NumDescriptorRanges = param.DescriptorTable.size();
+				table.NumDescriptorRanges = (UINT)param.DescriptorTable.size();
 				table.pDescriptorRanges = &param.DescriptorTable[0];
 			}
 			else {
@@ -42,7 +42,7 @@ void RootSignature::Create()
 
 	if (rootParams.size() > 0) {
 		_desc.pParameters = &rootParams[0];
-		_desc.NumParameters = rootParams.size();
+		_desc.NumParameters = (UINT)rootParams.size();
 	}
 	else {
 		_desc.pParameters = nullptr;
@@ -51,7 +51,7 @@ void RootSignature::Create()
 	
 	if (desc.StaticSamplers.size() > 0) {
 		_desc.pStaticSamplers = &desc.StaticSamplers[0];
-		_desc.NumStaticSamplers = desc.StaticSamplers.size();
+		_desc.NumStaticSamplers = (UINT)desc.StaticSamplers.size();
 	}
 	else {
 		_desc.pStaticSamplers = nullptr;

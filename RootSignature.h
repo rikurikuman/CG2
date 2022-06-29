@@ -11,9 +11,9 @@ typedef std::vector<StaticSamplerDesc> StaticSamplerDescs;
 struct RootParamater {
     D3D12_ROOT_PARAMETER_TYPE ParameterType;
     DescriptorRanges DescriptorTable;
-    D3D12_ROOT_CONSTANTS Constants;
-    D3D12_ROOT_DESCRIPTOR Descriptor;
-    D3D12_SHADER_VISIBILITY ShaderVisibility;
+    D3D12_ROOT_CONSTANTS Constants = {};
+    D3D12_ROOT_DESCRIPTOR Descriptor = {};
+    D3D12_SHADER_VISIBILITY ShaderVisibility = {};
 };
 
 typedef std::vector<RootParamater> RootParamaters;

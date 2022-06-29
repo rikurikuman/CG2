@@ -42,7 +42,7 @@ void GraphicsPipeline::Create()
 
     if (desc.InputLayout.size() > 0) {
         _desc.InputLayout.pInputElementDescs = &desc.InputLayout[0];
-        _desc.InputLayout.NumElements = desc.InputLayout.size();
+        _desc.InputLayout.NumElements = (UINT)desc.InputLayout.size();
     }
     else {
         _desc.InputLayout.pInputElementDescs = nullptr;

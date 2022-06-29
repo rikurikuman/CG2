@@ -12,7 +12,7 @@ public:
 	VertexBuffer vertexBuff;
 	IndexBuffer indexBuff;
 	std::vector<VertexPNU> vertexs;
-	std::vector<unsigned int> indices;
+	std::vector<UINT> indices;
 	Material material;
 	std::string name;
 

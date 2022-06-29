@@ -12,8 +12,8 @@ Sprite::Sprite(TextureHandle texture, Vector2 anchor)
 
 	//サイズをセットする
 	
-	this->size.x = TextureManager::Get(texture).resource->GetDesc().Width;
-	this->size.y = TextureManager::Get(texture).resource->GetDesc().Height;
+	this->size.x = (float)TextureManager::Get(texture).resource->GetDesc().Width;
+	this->size.y = (float)TextureManager::Get(texture).resource->GetDesc().Height;
 
 	//アンカーポイントをセットする
 	this->anchor = anchor;
@@ -49,8 +49,8 @@ void Sprite::TransferBuffer()
 	transform.Transfer(transformBuff.constMap);
 
 	Matrix4 matProjection = Matrix4::OrthoGraphicProjection(
-		0.0f, RWindow::GetWidth(),
-		0.0f, RWindow::GetHeight(),
+		0.0f, (float)RWindow::GetWidth(),
+		0.0f, (float)RWindow::GetHeight(),
 		0.0f, 1.0f
 	);
 	

@@ -366,7 +366,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RDirectX::GetCurrentBackBufferHandle() {
 	RDirectX* instance = GetInstance();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = instance->rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvHandle.ptr += GetCurrentBackBufferIndex() * instance->device->GetDescriptorHandleIncrementSize(instance->rtvHeap->GetDesc().Type);
+	rtvHandle.ptr += static_cast<size_t>(GetCurrentBackBufferIndex()) * instance->device->GetDescriptorHandleIncrementSize(instance->rtvHeap->GetDesc().Type);
 
 	return rtvHandle;
 }
@@ -450,6 +450,8 @@ void RDirectX::RunDraw() {
 	instance->cmdQueue->Signal(instance->fence.Get(), ++instance->fenceVal);
 	if (instance->fence->GetCompletedValue() != instance->fenceVal) {
 		HANDLE event = CreateEvent(nullptr, false, false, nullptr);
+		assert(event != NULL);
+
 		instance->fence->SetEventOnCompletion(instance->fenceVal, event);
 		WaitForSingleObject(event, INFINITE);
 		CloseHandle(event);
