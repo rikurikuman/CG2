@@ -8,6 +8,11 @@ LRESULT _DefWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 class RWindow
 {
 private:
+	RWindow() {};
+	~RWindow() = default;
+	RWindow(const RWindow& a) {};
+	RWindow& operator=(const RWindow&) { return *this; }
+
 	LRESULT(*WindowProc)(HWND, UINT, WPARAM, LPARAM) = _DefWindowProc; //ウィンドウプロシージャへのポインタ
 
 	int windowWidth = 1280; //ウィンドウの幅
@@ -18,36 +23,33 @@ private:
 	HWND wndHandle;
 	MSG msg{};
 
+	void InitInternal();
+
 public:
-	int GetWidth() {
-		return windowWidth;
-	}
-
-	int GetHeight() {
-		return windowHeight;
-	}
-
-	WNDCLASSEX GetWindowClassEx() {
-		return wndClassEx;
-	}
-
-	HWND GetWindowHandle() {
-		return wndHandle;
-	}
-
-	MSG GetMessageStructure() {
-		return msg;
-	}
-
 	//WindowsAPIの初期化処理
-	void Init();
+	static void Init();
+	static RWindow* GetInstance();
+
+	static int GetWidth() {
+		return GetInstance()->windowWidth;
+	}
+
+	static int GetHeight() {
+		return GetInstance()->windowHeight;
+	}
+
+	static WNDCLASSEX GetWindowClassEx() {
+		return GetInstance()->wndClassEx;
+	}
+
+	static HWND GetWindowHandle() {
+		return GetInstance()->wndHandle;
+	}
+
+	static MSG GetMessageStructure() {
+		return GetInstance()->msg;
+	}
 
 	//メッセージ処理
-	void ProcessMessage();
+	static void ProcessMessage();
 };
-
-//RWindowを取得する
-RWindow* GetRWindow();
-
-//RWindowを初期化する
-void InitRWindow();

@@ -15,7 +15,7 @@ public:
 
 	DebugCamera(Vector3 pos, float moveSpeed = 0.2f, float sensitivity = 10.0f) : moveSpeed(moveSpeed), sensitivity(sensitivity) {
 		viewProjection.eye = pos;
-		viewProjection.aspect = (float)GetRWindow()->GetWidth() / GetRWindow()->GetHeight();
+		viewProjection.aspect = (float)RWindow::GetWidth() / RWindow::GetHeight();
 	}
 
 	void Update();

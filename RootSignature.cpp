@@ -64,7 +64,7 @@ void RootSignature::Create()
 	result = D3D12SerializeRootSignature(&_desc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, nullptr);
 	assert(SUCCEEDED(result));
 
-	result = GetRDirectX()->device->CreateRootSignature(
+	result = RDirectX::GetInstance()->device->CreateRootSignature(
 		0, rootSigBlob->GetBufferPointer(),
 		rootSigBlob->GetBufferSize(),
 		IID_PPV_ARGS(&ptr));

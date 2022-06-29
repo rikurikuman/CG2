@@ -3,31 +3,31 @@
 
 void DebugCamera::Update()
 {
-	if (GetKey(DIK_W)) {
+	if (RInput::GetKey(DIK_W)) {
 		viewProjection.eye.x += -moveSpeed * cos(Util::PI / 180 * angle.x);
 		viewProjection.eye.z += moveSpeed * sin(Util::PI / 180 * angle.x);
 	}
-	if (GetKey(DIK_S)) {
+	if (RInput::GetKey(DIK_S)) {
 		viewProjection.eye.x += -moveSpeed * cos(Util::PI / 180 * (angle.x + 180));
 		viewProjection.eye.z += moveSpeed * sin(Util::PI / 180 * (angle.x + 180));
 	}
-	if (GetKey(DIK_A)) {
+	if (RInput::GetKey(DIK_A)) {
 		viewProjection.eye.x += -moveSpeed * cos(Util::PI / 180 * (angle.x - 90));
 		viewProjection.eye.z += moveSpeed * sin(Util::PI / 180 * (angle.x - 90));
 	}
-	if (GetKey(DIK_D)) {
+	if (RInput::GetKey(DIK_D)) {
 		viewProjection.eye.x += -moveSpeed * cos(Util::PI / 180 * (angle.x + 90));
 		viewProjection.eye.z += moveSpeed * sin(Util::PI / 180 * (angle.x + 90));
 	}
-	if (GetKey(DIK_SPACE)) {
+	if (RInput::GetKey(DIK_SPACE)) {
 		viewProjection.eye.y += moveSpeed;
 	}
-	if (GetKey(DIK_LSHIFT)) {
+	if (RInput::GetKey(DIK_LSHIFT)) {
 		viewProjection.eye.y -= moveSpeed;
 	}
 
-	angle.x += GetMouseMove().x / sensitivity;
-	angle.y -= GetMouseMove().y / sensitivity;
+	angle.x += RInput::GetMouseMove().x / sensitivity;
+	angle.y -= RInput::GetMouseMove().y / sensitivity;
 
 	if (angle.x >= 360) {
 		angle.x -= 360;

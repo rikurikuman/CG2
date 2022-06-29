@@ -63,6 +63,6 @@ void GraphicsPipeline::Create()
     _desc.CachedPSO = desc.CachedPSO;
     _desc.Flags = desc.Flags;
 
-	result = GetRDirectX()->device->CreateGraphicsPipelineState(&_desc, IID_PPV_ARGS(&ptr));
+	result = RDirectX::GetInstance()->device->CreateGraphicsPipelineState(&_desc, IID_PPV_ARGS(&ptr));
 	assert(SUCCEEDED(result));
 }

@@ -39,7 +39,7 @@ void VertexBuffer::Init(VertexP* list, unsigned int size)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//頂点バッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -84,7 +84,7 @@ void VertexBuffer::Init(std::vector<VertexP> list)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//頂点バッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -129,7 +129,7 @@ void VertexBuffer::Init(VertexPNU* list, unsigned int size)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//頂点バッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -174,7 +174,7 @@ void VertexBuffer::Init(std::vector<VertexPNU> list)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//頂点バッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,

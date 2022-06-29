@@ -40,13 +40,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 #endif
 	//WindowsAPI
-	InitRWindow();
+	RWindow::Init();
 
 	//DirectX
-	InitRDirectX();
+	RDirectX::Init();
 
 	//DirectInput
-	InitInput();
+	RInput::Init();
 
 	//いろいろ
 
@@ -54,7 +54,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Shader::Register("TestGS", Shader("Shader/TestGS.hlsl", "main", "gs_5_0"));
 	Shader::Register("TestPS", Shader("Shader/TestPS.hlsl", "main", "ps_5_0"));
 
-	RootSignature testRS = GetRDirectX()->rootSignature;
+	RootSignature testRS = RDirectX::GetInstance()->rootSignature;
 
 	DescriptorRange descriptorRange{};
 	descriptorRange.NumDescriptors = 1; //一度の描画に使うテクスチャが1枚なので1
@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	testRS.desc.RootParamaters = rootParams;
 	testRS.Create();
 
-	GraphicsPipeline testPL = GetRDirectX()->pipelineState;
+	GraphicsPipeline testPL = RDirectX::GetInstance()->pipelineState;
 	testPL.desc.VS = Shader("Shader/TestVS.hlsl", "main", "vs_5_0");
 	testPL.desc.GS = Shader("Shader/TestGS.hlsl", "main", "gs_5_0");
 	testPL.desc.PS = Shader("Shader/TestPS.hlsl", "main", "ps_5_0");
@@ -122,52 +122,52 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	DebugCamera camera({0, 0, -10});
 
 	while (true) {
-		GetRWindow()->ProcessMessage();
+		RWindow::ProcessMessage();
 
-		if (GetRWindow()->GetMessageStructure().message == WM_QUIT) {
+		if (RWindow::GetInstance()->GetMessageStructure().message == WM_QUIT) {
 			break;
 		}
 
-		UpdateInput();
+		RInput::Update();
 
-		if (GetKeyDown(DIK_F1)) {
+		if (RInput::GetKeyDown(DIK_F1)) {
 			Util::debugBool = !Util::debugBool;
 		}
 
-		if (GetKey(DIK_1)) {
+		if (RInput::GetKey(DIK_1)) {
 			materialBuff.constMap->color = { 1, 0, 0, 0.5f };
 		}
 		else {
 			materialBuff.constMap->color = { 1, 1, 1, 1 };
 		}
 
-		if (GetKey(DIK_SPACE)) {
+		if (RInput::GetKey(DIK_SPACE)) {
 			cubeA.transform.rotation.z += XMConvertToRadians(10.0f);
 		}
 
-		if (GetKey(DIK_UP)) {
+		if (RInput::GetKey(DIK_UP)) {
 			cubeA.transform.position.z += 0.1f;
 		}
-		if (GetKey(DIK_DOWN)) {
+		if (RInput::GetKey(DIK_DOWN)) {
 			cubeA.transform.position.z -= 0.1f;
 		}
-		if (GetKey(DIK_RIGHT)) {
+		if (RInput::GetKey(DIK_RIGHT)) {
 			cubeA.transform.position.x += 0.1f;
 		}
-		if (GetKey(DIK_LEFT)) {
+		if (RInput::GetKey(DIK_LEFT)) {
 			cubeA.transform.position.x -= 0.1f;
 		}
 
-		if (GetKey(DIK_NUMPAD8)) {
+		if (RInput::GetKey(DIK_NUMPAD8)) {
 			cubeA.transform.scale.y += 0.1f;
 		}
-		if (GetKey(DIK_NUMPAD2)) {
+		if (RInput::GetKey(DIK_NUMPAD2)) {
 			cubeA.transform.scale.y -= 0.1f;
 		}
-		if (GetKey(DIK_NUMPAD6)) {
+		if (RInput::GetKey(DIK_NUMPAD6)) {
 			cubeA.transform.scale.x += 0.1f;
 		}
-		if (GetKey(DIK_NUMPAD4)) {
+		if (RInput::GetKey(DIK_NUMPAD4)) {
 			cubeA.transform.scale.x -= 0.1f;
 		}
 
@@ -178,16 +178,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		cubeB.transform.UpdateMatrix();
 		cubeB.UpdateFaces();
 
-		if (GetKey(DIK_W)) {
+		if (RInput::GetKey(DIK_W)) {
 			viewProjection.eye.z += 0.1f;
 		}
-		if (GetKey(DIK_S)) {
+		if (RInput::GetKey(DIK_S)) {
 			viewProjection.eye.z -= 0.1f;
 		}
-		if (GetKey(DIK_A)) {
+		if (RInput::GetKey(DIK_A)) {
 			viewProjection.eye.x -= 0.1f;
 		}
-		if (GetKey(DIK_D)) {
+		if (RInput::GetKey(DIK_D)) {
 			viewProjection.eye.x += 0.1f;
 		}
 		viewProjection.UpdateMatrix();
@@ -208,36 +208,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		//以下描画
 		//バックバッファ番号の取得
-		UINT bbIndex = GetRDirectX()->swapChain->GetCurrentBackBufferIndex();
+		UINT bbIndex = RDirectX::GetInstance()->swapChain->GetCurrentBackBufferIndex();
 
 		//リソースバリアで書き込み可能に変更
 		D3D12_RESOURCE_BARRIER barrierDesc{};
-		barrierDesc.Transition.pResource = GetRDirectX()->backBuffers[bbIndex].Get();
+		barrierDesc.Transition.pResource = RDirectX::GetInstance()->backBuffers[bbIndex].Get();
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT; //Before:表示から
 		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET; //After:描画へ
-		GetRDirectX()->cmdList->ResourceBarrier(1, &barrierDesc);
+		RDirectX::GetInstance()->cmdList->ResourceBarrier(1, &barrierDesc);
 
 		//バックバッファを描画先にする(レンダーターゲットの設定)
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetRDirectX()->rtvHeap->GetCPUDescriptorHandleForHeapStart();
-		rtvHandle.ptr += bbIndex * GetRDirectX()->device->GetDescriptorHandleIncrementSize(GetRDirectX()->rtvHeap->GetDesc().Type);
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = RDirectX::GetInstance()->rtvHeap->GetCPUDescriptorHandleForHeapStart();
+		rtvHandle.ptr += bbIndex * RDirectX::GetInstance()->device->GetDescriptorHandleIncrementSize(RDirectX::GetInstance()->rtvHeap->GetDesc().Type);
 
 		//深度ステンシルも設定
-		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetRDirectX()->dsvHeap->GetCPUDescriptorHandleForHeapStart();
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = RDirectX::GetInstance()->dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
 		//セット
-		GetRDirectX()->cmdList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+		RDirectX::GetInstance()->cmdList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
 
 		//画面クリア～
 		FLOAT clearColor[] = { 0.1f, 0.25f, 0.5f, 0.0f }; //青っぽい色でクリアする
-		if (GetKey(DIK_SPACE)) {
+		if (RInput::GetKey(DIK_SPACE)) {
 			//赤っぽい色でクリアする
 			clearColor[0] = 0.5f;
 			clearColor[1] = 0.1f;
 			clearColor[2] = 0.1f;
 			clearColor[3] = 0.0f;
 		}
-		GetRDirectX()->cmdList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-		GetRDirectX()->cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+		RDirectX::GetInstance()->cmdList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		RDirectX::GetInstance()->cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 		//描画コマンド
 		//ビューポート設定コマンド
@@ -248,7 +248,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		viewport.TopLeftY = 0;
 		viewport.MinDepth = 0.0f;
 		viewport.MaxDepth = 1.0f;
-		GetRDirectX()->cmdList->RSSetViewports(1, &viewport);
+		RDirectX::GetInstance()->cmdList->RSSetViewports(1, &viewport);
 
 		//シザー矩形
 		D3D12_RECT scissorRect{};
@@ -256,27 +256,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		scissorRect.right = scissorRect.left + WIN_WIDTH;
 		scissorRect.top = 0;
 		scissorRect.bottom = scissorRect.top + WIN_HEIGHT;
-		GetRDirectX()->cmdList->RSSetScissorRects(1, &scissorRect);
+		RDirectX::GetInstance()->cmdList->RSSetScissorRects(1, &scissorRect);
 
-		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
-		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
 		//プリミティブ形状設定
-		GetRDirectX()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		RDirectX::GetInstance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//SRVヒープの設定コマンド
 		ID3D12DescriptorHeap* _heap = TextureManager::GetInstance()->GetSRVHeap();
-		GetRDirectX()->cmdList->SetDescriptorHeaps(1, &_heap);
+		RDirectX::GetInstance()->cmdList->SetDescriptorHeaps(1, &_heap);
 
 		//描画コマンド
 
-		GetRDirectX()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
-		GetRDirectX()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
 
 		sprite.DrawCommands();
 
-		GetRDirectX()->cmdList->SetPipelineState(GetRDirectX()->pipelineState.ptr.Get());
-		GetRDirectX()->cmdList->SetGraphicsRootSignature(GetRDirectX()->rootSignature.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
 		cubeA.DrawCommands();
 		cubeB.DrawCommands();
@@ -286,21 +286,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		testViewProBuff.constMap->matrix = camera.viewProjection.matrix;
 
-		GetRDirectX()->cmdList->SetPipelineState(testPL.ptr.Get());
-		GetRDirectX()->cmdList->SetGraphicsRootSignature(testRS.ptr.Get());
-		GetRDirectX()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-		GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &testPoint.view);
-		GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(1, testViewProBuff.constBuff->GetGPUVirtualAddress());
-		GetRDirectX()->cmdList->DrawInstanced(1, 1, 0, 0);
+		RDirectX::GetInstance()->cmdList->SetPipelineState(testPL.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(testRS.ptr.Get());
+		RDirectX::GetInstance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &testPoint.view);
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, testViewProBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->DrawInstanced(1, 1, 0, 0);
 
 		///////////////////
 
 		//リソースバリアを表示に戻す
 		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
 		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT; //After:表示へ
-		GetRDirectX()->cmdList->ResourceBarrier(1, &barrierDesc);
+		RDirectX::GetInstance()->cmdList->ResourceBarrier(1, &barrierDesc);
 
-		EndFrame();
+		RDirectX::RunDraw();
 	}
 	return 0;
 }

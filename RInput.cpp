@@ -1,28 +1,25 @@
 #include "RInput.h"
 #include <memory>
 #include <cassert>
-#include <wrl.h>
 #include "RWindow.h"
-
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
 
 using namespace std;
 using namespace Microsoft::WRL;
 
-ComPtr<IDirectInput8> directInput = nullptr;
-ComPtr<IDirectInputDevice8> keyboard = nullptr;
-ComPtr<IDirectInputDevice8> mouse = nullptr;
-BYTE keyState[256] = {};
-BYTE oldKeyState[256] = {};
-DIMOUSESTATE2 mouseState;
-DIMOUSESTATE2 oldMouseState;
+RInput* RInput::GetInstance() {
+	static RInput instance;
+	return &instance;
+}
 
-void InitInput()
+void RInput::Init() {
+	GetInstance()->InitInternal();
+}
+
+void RInput::InitInternal()
 {
 	HRESULT result;
 	result = DirectInput8Create(
-		GetRWindow()->GetWindowClassEx().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
+		RWindow::GetWindowClassEx().hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
 		(void**)&directInput, nullptr
 	);
 	assert(SUCCEEDED(result));
@@ -40,60 +37,62 @@ void InitInput()
 
 	//排他制御レベルのセット
 	result = keyboard->SetCooperativeLevel(
-		GetRWindow()->GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY //左から、アクティブウィンドウ,専有しない,Winキー無効
+		RWindow::GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY //左から、アクティブウィンドウ,専有しない,Winキー無効
 	);
 	assert(SUCCEEDED(result));
 	result = mouse->SetCooperativeLevel(
-		GetRWindow()->GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE //左から、アクティブウィンドウ,専有しない
+		RWindow::GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE //左から、アクティブウィンドウ,専有しない
 	);
 	assert(SUCCEEDED(result));
 }
 
-void UpdateInput()
+void RInput::Update()
 {
+	RInput* instance = GetInstance();
+
 	//情報の取得開始
-	keyboard->Acquire();
-	mouse->Acquire();
+	instance->keyboard->Acquire();
+	instance->mouse->Acquire();
 
 	//全キーの入力状態を取得する
 	for (int i = 0; i < 256; i++) {
-		oldKeyState[i] = keyState[i];
+		instance->oldKeyState[i] = instance->keyState[i];
 	}
-	oldMouseState = mouseState;
-	keyboard->GetDeviceState(sizeof(keyState), keyState);
-	mouse->GetDeviceState(sizeof(mouseState), &mouseState);
+	instance->oldMouseState = instance->mouseState;
+	instance->keyboard->GetDeviceState(sizeof(keyState), instance->keyState);
+	instance->mouse->GetDeviceState(sizeof(mouseState), &instance->mouseState);
 }
 
-bool GetKey(unsigned char key)
+bool RInput::GetKey(unsigned char key)
 {
-	return keyState[key];
+	return GetInstance()->keyState[key];
 }
 
-bool GetKeyUp(unsigned char key)
+bool RInput::GetKeyUp(unsigned char key)
 {
-	return !keyState[key] && oldKeyState[key];
+	return !GetInstance()->keyState[key] && GetInstance()->oldKeyState[key];
 }
 
-bool GetKeyDown(unsigned char key)
+bool RInput::GetKeyDown(unsigned char key)
 {
-	return keyState[key] && !oldKeyState[key];
+	return GetInstance()->keyState[key] && !GetInstance()->oldKeyState[key];
 }
 
-bool GetMouseClick(int buttonNum)
+bool RInput::GetMouseClick(int buttonNum)
 {
-	return (mouseState.rgbButtons[buttonNum] & 0x80) != 0;
+	return (GetInstance()->mouseState.rgbButtons[buttonNum] & 0x80) != 0;
 }
 
-bool GetMouseClickUp(int buttonNum)
+bool RInput::GetMouseClickUp(int buttonNum)
 {
-	return (mouseState.rgbButtons[buttonNum] & 0x80) == 0 && (oldMouseState.rgbButtons[buttonNum] & 0x80) != 0;
+	return (GetInstance()->mouseState.rgbButtons[buttonNum] & 0x80) == 0 && (GetInstance()->oldMouseState.rgbButtons[buttonNum] & 0x80) != 0;
 }
 
-bool GetMouseClickDown(int buttonNum)
+bool RInput::GetMouseClickDown(int buttonNum)
 {
-	return (mouseState.rgbButtons[buttonNum] & 0x80) != 0 && (oldMouseState.rgbButtons[buttonNum] & 0x80) == 0;
+	return (GetInstance()->mouseState.rgbButtons[buttonNum] & 0x80) != 0 && (GetInstance()->oldMouseState.rgbButtons[buttonNum] & 0x80) == 0;
 }
 
-Vector3 GetMouseMove() {
-	return Vector3(mouseState.lX, mouseState.lY, mouseState.lZ);
+Vector3 RInput::GetMouseMove() {
+	return Vector3(GetInstance()->mouseState.lX, GetInstance()->mouseState.lY, GetInstance()->mouseState.lZ);
 }

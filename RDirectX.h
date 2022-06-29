@@ -30,23 +30,23 @@ public:
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12Fence> fence = nullptr;
 	UINT64 fenceVal = 0;
-	//ComPtr<ID3DBlob> basicVSBlob = nullptr; //頂点シェーダオブジェクト
-	//ComPtr<ID3DBlob> basicPSBlob = nullptr; //ピクセルシェーダオブジェクト
 	Shader basicVS;
 	Shader basicPS;
-	//ComPtr<ID3D12RootSignature> rootSignature = nullptr;
-	//ComPtr<ID3D12PipelineState> pipelineState = nullptr;
 	RootSignature rootSignature;
 	GraphicsPipeline pipelineState;
 
-	void Init();
+	//DirectX初期化
+	static void Init();
+	static RDirectX* GetInstance();
+
+	//コマンドリストを閉じて実行し、フリップして、コマンドリストを再び開ける
+	static void RunDraw();
+
+private:
+	RDirectX() {};
+	~RDirectX() = default;
+	RDirectX(const RDirectX& a) {};
+	RDirectX& operator=(const RDirectX&) { return *this; }
+
+	void InitInternal();
 };
-
-//RDirectXを取得する
-RDirectX* GetRDirectX();
-
-//RDirectXを初期化する
-void InitRDirectX();
-
-//フレーム終了毎に呼ぶ処理
-void EndFrame();

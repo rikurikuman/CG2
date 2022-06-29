@@ -2,18 +2,16 @@
 
 using namespace std;
 
-unique_ptr<RWindow> window;
-
-void InitRWindow() {
-	window = unique_ptr<RWindow>(new RWindow());
-	window->Init();
+void RWindow::Init() {
+	GetInstance()->InitInternal();
 }
 
-RWindow* GetRWindow() {
-	return window.get();
+RWindow* RWindow::GetInstance() {
+	static RWindow instance;
+	return &instance;
 }
 
-void RWindow::Init()
+void RWindow::InitInternal()
 {
 	wndClassEx.cbSize = sizeof(WNDCLASSEX);
 	wndClassEx.lpfnWndProc = (WNDPROC)WindowProc;
@@ -42,9 +40,10 @@ void RWindow::Init()
 
 void RWindow::ProcessMessage()
 {
-	if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg); //キー入力メッセージ処理
-		DispatchMessage(&msg);
+	RWindow* instance = GetInstance();
+	if (PeekMessage(&instance->msg, nullptr, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&instance->msg); //キー入力メッセージ処理
+		DispatchMessage(&instance->msg);
 	}
 }
 

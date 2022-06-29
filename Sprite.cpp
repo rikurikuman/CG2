@@ -49,8 +49,8 @@ void Sprite::TransferBuffer()
 	transform.Transfer(transformBuff.constMap);
 
 	Matrix4 matProjection = Matrix4::OrthoGraphicProjection(
-		0.0f, GetRWindow()->GetWidth(),
-		0.0f, GetRWindow()->GetHeight(),
+		0.0f, RWindow::GetWidth(),
+		0.0f, RWindow::GetHeight(),
 		0.0f, 1.0f
 	);
 	
@@ -60,30 +60,30 @@ void Sprite::TransferBuffer()
 void Sprite::DrawCommands()
 {
 	//頂点バッファビューの設定コマンド
-	GetRDirectX()->cmdList->IASetVertexBuffers(0, 1, &vertBuff.view);
+	RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &vertBuff.view);
 
 	//インデックスバッファビューの設定コマンド
-	GetRDirectX()->cmdList->IASetIndexBuffer(&indexBuff.view);
+	RDirectX::GetInstance()->cmdList->IASetIndexBuffer(&indexBuff.view);
 
 	//定数バッファビューの設定コマンド
-	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(1, materialBuff.constBuff->GetGPUVirtualAddress());
-	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(2, transformBuff.constBuff->GetGPUVirtualAddress());
-	GetRDirectX()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
+	RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, materialBuff.constBuff->GetGPUVirtualAddress());
+	RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(2, transformBuff.constBuff->GetGPUVirtualAddress());
+	RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
 
 	//SRVヒープから必要なテクスチャデータをセットする(背景)
-	GetRDirectX()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get(texture).gpuHandle);
+	RDirectX::GetInstance()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get(texture).gpuHandle);
 
 	TransferBuffer();
 
 	//描画コマンド
-	GetRDirectX()->cmdList->DrawIndexedInstanced(6, 1, 0, 0, 0); // 全ての頂点を使って描画
+	RDirectX::GetInstance()->cmdList->DrawIndexedInstanced(6, 1, 0, 0, 0); // 全ての頂点を使って描画
 }
 
 void SpriteManager::Init()
 {
-	rootSignature = GetRDirectX()->rootSignature;
+	rootSignature = RDirectX::GetInstance()->rootSignature;
 
-	pipelineState = GetRDirectX()->pipelineState;
+	pipelineState = RDirectX::GetInstance()->pipelineState;
 
 	// ラスタライザの設定
 	pipelineState.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;

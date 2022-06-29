@@ -4,6 +4,7 @@
 
 class Particle
 {
+public:
 	virtual ~Particle() {}
 
 	virtual void Update() {};

@@ -29,7 +29,7 @@ void IndexBuffer::Init(unsigned int* list, unsigned int size)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//インデックスバッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
@@ -73,7 +73,7 @@ void IndexBuffer::Init(std::vector<unsigned int> list)
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	//インデックスバッファ生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,

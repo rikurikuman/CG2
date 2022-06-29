@@ -12,18 +12,16 @@
 using namespace std;
 using namespace DirectX;
 
-unique_ptr<RDirectX> directX;
-
-void InitRDirectX() {
-	directX = unique_ptr<RDirectX>(new RDirectX());
-	directX->Init();
-}
-
-RDirectX* GetRDirectX() {
-	return directX.get();
+RDirectX* RDirectX::GetInstance() {
+	static RDirectX instance;
+	return &instance;
 }
 
 void RDirectX::Init() {
+	GetInstance()->InitInternal();
+}
+
+void RDirectX::InitInternal() {
 	HRESULT result;
 
 	//DXGIファクトリー生成
@@ -101,8 +99,8 @@ void RDirectX::Init() {
 
 	//スワップチェーン
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-	swapChainDesc.Width = GetRWindow()->GetWidth();
-	swapChainDesc.Height = GetRWindow()->GetHeight();
+	swapChainDesc.Width = RWindow::GetWidth();
+	swapChainDesc.Height = RWindow::GetHeight();
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //色情報の書式
 	swapChainDesc.SampleDesc.Count = 1; //マルチサンプルしない
 	swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER; //バックバッファ用
@@ -112,7 +110,7 @@ void RDirectX::Init() {
 	//生成
 	ComPtr<IDXGISwapChain1> _swapChain1;
 	result = dxgiFactory->CreateSwapChainForHwnd(
-		cmdQueue.Get(), GetRWindow()->GetWindowHandle(), &swapChainDesc, nullptr, nullptr,
+		cmdQueue.Get(), RWindow::GetWindowHandle(), &swapChainDesc, nullptr, nullptr,
 		&_swapChain1);
 	_swapChain1.As(&swapChain);
 	assert(SUCCEEDED(result));
@@ -157,15 +155,15 @@ void RDirectX::Init() {
 
 	//生成
 	srvHeap = nullptr;
-	result = GetRDirectX()->device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
+	result = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
 	assert(SUCCEEDED(result));
 
 
 	//深度バッファ
 	D3D12_RESOURCE_DESC depthResourceDesc{};
 	depthResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	depthResourceDesc.Width = GetRWindow()->GetWidth();
-	depthResourceDesc.Height = GetRWindow()->GetHeight();
+	depthResourceDesc.Width = RWindow::GetWidth();
+	depthResourceDesc.Height = RWindow::GetHeight();
 	depthResourceDesc.DepthOrArraySize = 1;
 	depthResourceDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	depthResourceDesc.SampleDesc.Count = 1;
@@ -356,32 +354,34 @@ void RDirectX::Init() {
 	pipelineState.Create();
 }
 
-void EndFrame() {
+void RDirectX::RunDraw() {
 	HRESULT result;
 
+	RDirectX* instance = GetInstance();
+
 	//命令のクローズ
-	result = directX->cmdList->Close();
+	result = instance->cmdList->Close();
 	assert(SUCCEEDED(result));
 	//コマンドリストの実行
-	ID3D12CommandList* cmdLists[] = { directX->cmdList.Get() };
-	directX->cmdQueue->ExecuteCommandLists(1, cmdLists);
+	ID3D12CommandList* cmdLists[] = { instance->cmdList.Get() };
+	instance->cmdQueue->ExecuteCommandLists(1, cmdLists);
 
 	//フリップ
-	result = directX->swapChain->Present(1, 0);
+	result = instance->swapChain->Present(1, 0);
 	assert(SUCCEEDED(result));
 
-	directX->cmdQueue->Signal(directX->fence.Get(), ++directX->fenceVal);
-	if (directX->fence->GetCompletedValue() != directX->fenceVal) {
+	instance->cmdQueue->Signal(instance->fence.Get(), ++instance->fenceVal);
+	if (instance->fence->GetCompletedValue() != instance->fenceVal) {
 		HANDLE event = CreateEvent(nullptr, false, false, nullptr);
-		directX->fence->SetEventOnCompletion(directX->fenceVal, event);
+		instance->fence->SetEventOnCompletion(instance->fenceVal, event);
 		WaitForSingleObject(event, INFINITE);
 		CloseHandle(event);
 	}
 
 	//キューをクリア
-	result = directX->cmdAllocator->Reset();
+	result = instance->cmdAllocator->Reset();
 	assert(SUCCEEDED(result));
 	// 再びコマンドリストを貯める準備
-	result = directX->cmdList->Reset(directX->cmdAllocator.Get(), nullptr);
+	result = instance->cmdList->Reset(instance->cmdAllocator.Get(), nullptr);
 	assert(SUCCEEDED(result));
 }

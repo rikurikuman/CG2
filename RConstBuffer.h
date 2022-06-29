@@ -25,7 +25,7 @@ private:
 		cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 		// 定数バッファの生成
-		result = GetRDirectX()->device->CreateCommittedResource(
+		result = RDirectX::GetInstance()->device->CreateCommittedResource(
 			&cbHeapProp, //ヒープ設定
 			D3D12_HEAP_FLAG_NONE,
 			&cbResourceDesc, //リソース設定
@@ -39,7 +39,6 @@ private:
 public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff = nullptr;
 	T* constMap = nullptr;
-
 
 	RConstBuffer() {
 		Init();

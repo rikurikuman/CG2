@@ -18,7 +18,7 @@ void TextureManager::Init()
 
 	//生成
 	srvHeap = nullptr;
-	result = GetRDirectX()->device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
+	result = RDirectX::GetInstance()->device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
 	assert(SUCCEEDED(result));
 
 	RegisterInternal(GetHogeHogeTexture(), "PreRegisteredTex_HogeHoge");
@@ -66,7 +66,7 @@ Texture TextureManager::GetHogeHogeTexture()
 	textureResourceDesc.SampleDesc.Count = 1;
 
 	//生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&textureHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&textureResourceDesc,
@@ -152,7 +152,7 @@ TextureHandle TextureManager::LoadInternal(const std::string filepath)
 	textureResourceDesc.SampleDesc.Count = 1;
 
 	//生成
-	result = GetRDirectX()->device->CreateCommittedResource(
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
 		&textureHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&textureResourceDesc,
@@ -217,7 +217,7 @@ TextureHandle TextureManager::RegisterInternal(Texture& texture, TextureHandle h
 	//シェーダーリソースビュー
 	D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = srvHeap->GetCPUDescriptorHandleForHeapStart();
 	D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
-	UINT incrementSize = GetRDirectX()->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	UINT incrementSize = RDirectX::GetInstance()->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_cpuHandle.ptr += useIndex * incrementSize;
 	_gpuHandle.ptr += useIndex * incrementSize;
 	texture.cpuHandle = _cpuHandle;
@@ -233,7 +233,7 @@ TextureHandle TextureManager::RegisterInternal(Texture& texture, TextureHandle h
 	srvDesc.Texture2D.MipLevels = texture.resource->GetDesc().MipLevels;
 
 	//生成
-	GetRDirectX()->device->CreateShaderResourceView(texture.resource.Get(), &srvDesc, _cpuHandle);
+	RDirectX::GetInstance()->device->CreateShaderResourceView(texture.resource.Get(), &srvDesc, _cpuHandle);
 
 	if (handle.empty()) {
 		handle = "NoNameHandle_" + useIndex;
