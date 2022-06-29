@@ -8,6 +8,7 @@
 #include "RootSignature.h"
 #include "GraphicsPipeline.h"
 #include "Shader.h"
+#include "Color.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -39,6 +40,36 @@ public:
 	static void Init();
 	static RDirectX* GetInstance();
 
+	//現在のバックバッファ番号を取得する
+	static UINT GetCurrentBackBufferIndex();
+
+	//現在のバックバッファのリソースを取得する
+	static ID3D12Resource* GetCurrentBackBufferResource();
+
+	//現在のバックバッファのRTVハンドルを取得する
+	static D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferHandle();
+
+	//レンダーターゲットを指定する
+	static void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE& rtvHandle);
+
+	//リソースバリアをPRESENT->RENDER_TARGETにする処理
+	static void OpenResorceBarrier(ID3D12Resource* resource);
+
+	//リソースバリアをRENDER_TARGET->PRESENTにする処理
+	static void CloseResourceBarrier(ID3D12Resource* resource);
+
+	//バックバッファを描画先にするための色んな処理をまとめて行う
+	static void SetBackBufferToRenderTarget();
+
+	/// <summary>
+	/// レンダーターゲットを指定で塗りつぶす
+	/// </summary>
+	/// <param name="color">塗りつぶす色</param>
+	static void ClearRenderTarget(Color color);
+
+	//深度値をクリアする
+	static void ClearDepthStencil();
+
 	//コマンドリストを閉じて実行し、フリップして、コマンドリストを再び開ける
 	static void RunDraw();
 
@@ -47,6 +78,8 @@ private:
 	~RDirectX() = default;
 	RDirectX(const RDirectX& a) {};
 	RDirectX& operator=(const RDirectX&) { return *this; }
+
+	D3D12_CPU_DESCRIPTOR_HANDLE nowRtvHandle = {};
 
 	void InitInternal();
 };

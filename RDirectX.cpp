@@ -354,6 +354,83 @@ void RDirectX::InitInternal() {
 	pipelineState.Create();
 }
 
+UINT RDirectX::GetCurrentBackBufferIndex() {
+	return GetInstance()->swapChain->GetCurrentBackBufferIndex();
+}
+
+ID3D12Resource* RDirectX::GetCurrentBackBufferResource() {
+	return GetInstance()->backBuffers[GetCurrentBackBufferIndex()].Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RDirectX::GetCurrentBackBufferHandle() {
+	RDirectX* instance = GetInstance();
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = instance->rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvHandle.ptr += GetCurrentBackBufferIndex() * instance->device->GetDescriptorHandleIncrementSize(instance->rtvHeap->GetDesc().Type);
+
+	return rtvHandle;
+}
+
+void RDirectX::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE& rtvHandle)
+{
+	RDirectX* instance = GetInstance();
+	//深度ステンシルも設定
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = instance->dsvHeap->GetCPUDescriptorHandleForHeapStart();
+
+	//セット
+	instance->cmdList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+	instance->nowRtvHandle = rtvHandle;
+}
+
+void RDirectX::SetBackBufferToRenderTarget() {
+	RDirectX* instance = GetInstance();
+
+	//リソースバリアで書き込み可能に変更
+	OpenResorceBarrier(GetCurrentBackBufferResource());
+
+	//バックバッファのRTVハンドルを得る
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetCurrentBackBufferHandle();
+
+	//深度ステンシルも設定
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = instance->dsvHeap->GetCPUDescriptorHandleForHeapStart();
+
+	//セット
+	instance->cmdList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+	instance->nowRtvHandle = rtvHandle;
+}
+
+void RDirectX::OpenResorceBarrier(ID3D12Resource* resource) {
+	D3D12_RESOURCE_BARRIER barrierDesc{};
+	barrierDesc.Transition.pResource = resource;
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT; //Before:表示から
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET; //After:描画へ
+	RDirectX::GetInstance()->cmdList->ResourceBarrier(1, &barrierDesc);
+}
+
+void RDirectX::CloseResourceBarrier(ID3D12Resource* resource) {
+	D3D12_RESOURCE_BARRIER barrierDesc{};
+	barrierDesc.Transition.pResource = resource;
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT; //After:表示へ
+	RDirectX::GetInstance()->cmdList->ResourceBarrier(1, &barrierDesc);
+}
+
+void RDirectX::ClearRenderTarget(Color color) {
+	RDirectX* instance = GetInstance();
+
+	FLOAT clearColor[] = { color.r, color.g, color.b, color.r };
+	instance->cmdList->ClearRenderTargetView(instance->nowRtvHandle, clearColor, 0, nullptr);
+}
+
+void RDirectX::ClearDepthStencil() {
+	RDirectX* instance = GetInstance();
+
+	instance->cmdList->ClearDepthStencilView(
+		instance->dsvHeap->GetCPUDescriptorHandleForHeapStart(),
+		D3D12_CLEAR_FLAG_DEPTH,
+		1.0f, 0, 0, nullptr);
+}
+
 void RDirectX::RunDraw() {
 	HRESULT result;
 

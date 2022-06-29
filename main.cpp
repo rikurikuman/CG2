@@ -207,37 +207,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		hogeObj.TransferBuffer(camera.viewProjection);
 
 		//以下描画
-		//バックバッファ番号の取得
-		UINT bbIndex = RDirectX::GetInstance()->swapChain->GetCurrentBackBufferIndex();
-
-		//リソースバリアで書き込み可能に変更
-		D3D12_RESOURCE_BARRIER barrierDesc{};
-		barrierDesc.Transition.pResource = RDirectX::GetInstance()->backBuffers[bbIndex].Get();
-		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT; //Before:表示から
-		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET; //After:描画へ
-		RDirectX::GetInstance()->cmdList->ResourceBarrier(1, &barrierDesc);
-
-		//バックバッファを描画先にする(レンダーターゲットの設定)
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = RDirectX::GetInstance()->rtvHeap->GetCPUDescriptorHandleForHeapStart();
-		rtvHandle.ptr += bbIndex * RDirectX::GetInstance()->device->GetDescriptorHandleIncrementSize(RDirectX::GetInstance()->rtvHeap->GetDesc().Type);
-
-		//深度ステンシルも設定
-		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = RDirectX::GetInstance()->dsvHeap->GetCPUDescriptorHandleForHeapStart();
-
-		//セット
-		RDirectX::GetInstance()->cmdList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+		RDirectX::SetBackBufferToRenderTarget();
 
 		//画面クリア～
-		FLOAT clearColor[] = { 0.1f, 0.25f, 0.5f, 0.0f }; //青っぽい色でクリアする
 		if (RInput::GetKey(DIK_SPACE)) {
-			//赤っぽい色でクリアする
-			clearColor[0] = 0.5f;
-			clearColor[1] = 0.1f;
-			clearColor[2] = 0.1f;
-			clearColor[3] = 0.0f;
+			RDirectX::ClearRenderTarget(Color(0.5f, 0.1f, 0.1f, 0.0f)); //赤っぽい色でクリアする
 		}
-		RDirectX::GetInstance()->cmdList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-		RDirectX::GetInstance()->cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+		else {
+			RDirectX::ClearRenderTarget(Color(0.1f, 0.25f, 0.5f, 0.0f)); //青っぽい色でクリアする
+		}
+		
+		//深度値もクリア
+		RDirectX::ClearDepthStencil();
 
 		//描画コマンド
 		//ビューポート設定コマンド
@@ -296,9 +277,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///////////////////
 
 		//リソースバリアを表示に戻す
-		barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; //Before:描画から
-		barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT; //After:表示へ
-		RDirectX::GetInstance()->cmdList->ResourceBarrier(1, &barrierDesc);
+		RDirectX::CloseResourceBarrier(RDirectX::GetCurrentBackBufferResource());
 
 		RDirectX::RunDraw();
 	}
