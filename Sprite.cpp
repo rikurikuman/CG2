@@ -70,7 +70,7 @@ void Sprite::DrawCommands()
 	RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(2, transformBuff.constBuff->GetGPUVirtualAddress());
 	RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(3, viewProjectionBuff.constBuff->GetGPUVirtualAddress());
 
-	//SRVヒープから必要なテクスチャデータをセットする(背景)
+	//SRVヒープから必要なテクスチャデータをセットする
 	RDirectX::GetInstance()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get(texture).gpuHandle);
 
 	TransferBuffer();
@@ -89,6 +89,8 @@ void SpriteManager::Init()
 	pipelineState.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	pipelineState.desc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	pipelineState.desc.RasterizerState.DepthClipEnable = false;
+
+	pipelineState.desc.DepthStencilState.DepthEnable = false;
 
 	pipelineState.Create();
 }

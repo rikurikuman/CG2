@@ -450,11 +450,14 @@ void RDirectX::RunDraw() {
 	instance->cmdQueue->Signal(instance->fence.Get(), ++instance->fenceVal);
 	if (instance->fence->GetCompletedValue() != instance->fenceVal) {
 		HANDLE event = CreateEvent(nullptr, false, false, nullptr);
-		assert(event != NULL);
-
-		instance->fence->SetEventOnCompletion(instance->fenceVal, event);
-		WaitForSingleObject(event, INFINITE);
-		CloseHandle(event);
+		if (event != NULL) {
+			instance->fence->SetEventOnCompletion(instance->fenceVal, event);
+			WaitForSingleObject(event, INFINITE);
+			CloseHandle(event);
+		}
+		else {
+			assert(event != NULL);
+		}
 	}
 
 	//キューをクリア

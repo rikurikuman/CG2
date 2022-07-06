@@ -50,6 +50,88 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	//いろいろ
 
+	GLYPHMETRICS GM;
+	CONST MAT2 Mat = { {0,1},{0,0},{0,0},{0,1} };
+
+	HFONT _font = CreateFont(128, 0, 0, 0, FW_REGULAR, false, false, false, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, L"ＭＳ Ｐ明朝");
+
+	HDC hdc = GetDC(NULL);
+	HFONT oldFont = (HFONT)SelectObject(hdc, _font);
+	wchar_t* c = L"あ";
+	UINT code = (UINT)*c;
+
+	DWORD size = GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &GM, 0, NULL, &Mat);
+	BYTE* ptr = new BYTE[size];
+	GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &GM, size, ptr, &Mat);
+
+	// オブジェクトの開放
+	SelectObject(hdc, oldFont);
+	DeleteObject(_font);
+	ReleaseDC(NULL, hdc);
+
+	int fontWidth = (GM.gmBlackBoxX + 3) / 4 * 4;
+	int fontHeight = GM.gmBlackBoxY;
+	int fontDataCount = fontWidth * fontHeight;
+
+	OutputDebugString((wstring(L"fontWidth: ") + to_wstring(fontWidth) + L"(" + to_wstring(GM.gmBlackBoxX) + L")\n").c_str());
+	OutputDebugString((wstring(L"fontHeight: ") + to_wstring(fontHeight) + L"\n").c_str());
+
+	Color* imageData = new Color[fontDataCount];
+
+	for (size_t i = 0; i < fontDataCount; i++) {
+		float grayScale = (float)ptr[i];
+		imageData[i].r = 1.0f;
+		imageData[i].g = 1.0f;
+		imageData[i].b = 1.0f;
+		imageData[i].a = (grayScale * 255.0f / 16) / 255.0f;
+	}
+
+	Texture texture = Texture();
+
+	// テクスチャバッファ
+	// ヒープ設定
+	D3D12_HEAP_PROPERTIES textureHeapProp{};
+	textureHeapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
+	textureHeapProp.CPUPageProperty =
+		D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	textureHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	// リソース設定
+	D3D12_RESOURCE_DESC textureResourceDesc{};
+	textureResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	textureResourceDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureResourceDesc.Width = fontWidth;
+	textureResourceDesc.Height = fontHeight;
+	textureResourceDesc.DepthOrArraySize = 1;
+	textureResourceDesc.MipLevels = 1;
+	textureResourceDesc.SampleDesc.Count = 1;
+
+	//生成
+	RDirectX::GetInstance()->device->CreateCommittedResource(
+		&textureHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&textureResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&texture.resource)
+	);
+
+	texture.resource->WriteToSubresource(
+		0,
+		nullptr,
+		imageData,
+		sizeof(Color) * fontWidth,
+		sizeof(Color) * fontDataCount
+	);
+
+	delete[] imageData;
+
+	TextureManager::Register(texture, "テスト");
+
+	Sprite testSprite("テスト", {0.0f, 0.0f});
+	Image3D testFontImage("テスト", { 1.0f, 1.0f });
+
+	//いろいろ(GSてすと)
+
 	Shader::Register("TestVS", Shader("Shader/TestVS.hlsl", "main", "vs_5_0"));
 	Shader::Register("TestGS", Shader("Shader/TestGS.hlsl", "main", "gs_5_0"));
 	Shader::Register("TestPS", Shader("Shader/TestPS.hlsl", "main", "ps_5_0"));
@@ -95,7 +177,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	RConstBuffer<ViewProjectionBuffer> testViewProBuff;
 
 	///////////////////
-
 
 	Model model = Model::Load("Resources/skydome/", "skydome.obj");
 	ModelObj hogeObj(&model);
@@ -251,11 +332,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//描画コマンド
 
-		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
-
-		sprite.DrawCommands();
-
 		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
@@ -263,16 +339,28 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
+		testFontImage.TransferBuffer(camera.viewProjection);
+		testFontImage.DrawCommands();
+
+		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
+
+		//sprite.DrawCommands();
+		testSprite.transform.UpdateMatrix();
+		testSprite.TransferBuffer();
+		testSprite.DrawCommands();
+		
+
 		//////////////////
 
-		testViewProBuff.constMap->matrix = camera.viewProjection.matrix;
+	/*	testViewProBuff.constMap->matrix = camera.viewProjection.matrix;
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(testPL.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(testRS.ptr.Get());
 		RDirectX::GetInstance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &testPoint.view);
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, testViewProBuff.constBuff->GetGPUVirtualAddress());
-		RDirectX::GetInstance()->cmdList->DrawInstanced(1, 1, 0, 0);
+		RDirectX::GetInstance()->cmdList->DrawInstanced(1, 1, 0, 0);*/
 
 		///////////////////
 

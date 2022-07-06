@@ -87,9 +87,7 @@ private:
 	TextureHandle RegisterInternal(Texture& texture, TextureHandle handle = "");
 	void UnRegisterInternal(const TextureHandle& handle);
 
-	static const UINT numSRVDescritors = 256; //デスクリプタヒープの数
+	static const UINT numSRVDescritors = 2048; //デスクリプタヒープの数
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap; //テクスチャ用SRVデスクリプタヒープ
-	UINT nextIndex = 0;
-	std::list<std::shared_ptr<Texture>> textures; //テクスチャリスト
 	std::map<TextureHandle, Texture> textureMap;
 };

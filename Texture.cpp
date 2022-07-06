@@ -84,7 +84,7 @@ Texture TextureManager::GetHogeHogeTexture()
 		sizeof(Color) * imageDataCount
 	);
 
-	delete imageData;
+	delete[] imageData;
 	return texture;
 }
 
@@ -211,6 +211,7 @@ TextureHandle TextureManager::RegisterInternal(Texture& texture, TextureHandle h
 	}
 
 	if (useIndex == -1) {
+		//over
 		return TextureHandle();
 	}
 
