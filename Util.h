@@ -93,4 +93,7 @@ namespace Util {
         }
         return std::distance(vector.begin(), itr);
     }
+
+    //string‚ğwstring‚É•ÏŠ·‚·‚éiMultiByteToWideChar)
+    std::wstring ConvertStringToWString(std::string str);
 }

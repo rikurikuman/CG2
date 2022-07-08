@@ -9,20 +9,37 @@ public:
 		return &instance;
 	}
 
-	static Texture GetFontTexture(std::string glyph, std::string fontTypeFace, UINT fontSize);
+	static Texture GetFontTexture(std::string glyph, std::string fontTypeFace, UINT fontSize, bool useAlign = false);
+	static Texture GetFontTexture(std::wstring glyph, std::wstring fontTypeFace, UINT fontSize, bool useAlign = false);
 
-	static void DrawString(int x, int y, std::string text, std::string fontTypeFace, UINT fontSize);
+	static TextureHandle CreateStringTexture(std::string text, std::string fontTypeFace, UINT fontSize, std::string handle = "");
+
+	//static void DrawString(int x, int y, std::string text, std::string fontTypeFace, UINT fontSize);
 
 private:
 	struct Glyph {
-		std::wstring fontTypeFace;
 		std::wstring glyph;
+		std::wstring fontTypeFace;
+		UINT fontSize;
+
+		bool operator==(const Glyph& a) const {
+			return glyph == a.glyph && fontTypeFace == a.fontTypeFace && fontSize == a.fontSize;
+		}
 
 		bool operator<(const Glyph& a) const {
-			if (fontTypeFace < a.fontTypeFace) {
+			if (glyph < a.glyph) {
 				return true;
 			}
-			return glyph < a.glyph;
+			else if (glyph == a.glyph) {
+				if (fontTypeFace < a.fontTypeFace) {
+					return true;
+				}
+				else if (fontTypeFace == a.fontTypeFace) {
+					return fontSize < a.fontSize;
+				}
+			}
+
+			return false;
 		}
 	};
 

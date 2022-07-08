@@ -1,4 +1,5 @@
 #include "Util.h"
+#include <windows.h>
 
 using namespace std;
 
@@ -62,4 +63,26 @@ double Util::Clamp(double d, double min, double max) {
 	if (d < min) { return min; }
 	if (d > max) { return max; }
 	return d;
+}
+
+wstring Util::ConvertStringToWString(string str) {
+	//必要なwchar_t配列長を得る
+	int _arraySize = MultiByteToWideChar(CP_ACP, 0, str.c_str()
+		, -1, (wchar_t*)NULL, 0);
+
+	//配列を用意する
+	wchar_t* wArray = new wchar_t[_arraySize];
+
+	//変換してwchar_tの配列にぶち込む
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, wArray
+		, _arraySize);
+
+	//wstringにする
+	std::wstring wStr(wArray, wArray + _arraySize - 1);
+
+	//配列は罪深いことにnewしてしまったのでdeleteする
+	delete[] wArray;
+
+	//おしまい
+	return wStr;
 }

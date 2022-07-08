@@ -218,7 +218,7 @@ TextureHandle TextureManager::RegisterInternal(Texture& texture, TextureHandle h
 	//シェーダーリソースビュー
 	D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = srvHeap->GetCPUDescriptorHandleForHeapStart();
 	D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle = srvHeap->GetGPUDescriptorHandleForHeapStart();
-	UINT incrementSize = RDirectX::GetInstance()->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	size_t incrementSize = RDirectX::GetInstance()->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_cpuHandle.ptr += useIndex * incrementSize;
 	_gpuHandle.ptr += useIndex * incrementSize;
 	texture.cpuHandle = _cpuHandle;
