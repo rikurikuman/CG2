@@ -53,10 +53,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	//TextureManager::Register(TextDrawer::GetFontTexture("‚Ù", "‚l‚r ‚o–¾’©", 16), "ƒeƒXƒg");
 
-	TextureHandle testStringHandle = TextDrawer::CreateStringTexture("abcdefghijklmnopqrstuvwxyz.,!?‚ ", "‚l‚r ‚oƒSƒVƒbƒN", 64);
+	TextureHandle testStringHandle = TextDrawer::CreateStringTexture("hogehoge‚ ‚¢‚¤‚¦int‚Ù‚°", "‚l‚r ‚o–¾’©", 128);
 
 	Sprite testSprite(testStringHandle, { 0.0f, 0.0f });
-	Image3D testFontImage(testStringHandle, { 1.0f, 1.0f });
 
 	//‚¢‚ë‚¢‚ë(GS‚Ä‚·‚Æ)
 
@@ -114,10 +113,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	RConstBuffer<MaterialBuffer> materialBuff;
 
-	Sprite sprite(texB, {0, 0});
-	Image3D image(texA, { 1, 1 });
-	Cube cubeA(texB, {1.768f, 1});
-	Cube cubeB(texA, { 1, 1 });
+	Sprite sprite(texB, { 0, 0 });
+	Image3D image(texA);
+
+	TextureHandle textHandleA = TextDrawer::CreateStringTexture("ƒrƒ‹ƒ{[ƒh‚É“\‚Á‚Ä‚Ý‚½", "‚l‚r ‚o–¾’©", 32);
+	TextureHandle textHandleB = TextDrawer::CreateStringTexture("ƒl[ƒ€ƒ^ƒO‚Ý‚½‚¢‚Å‚¢‚¢‚í‚Ë", "‚l‚r ‚o–¾’©", 32);
+	BillboardImage textA(textHandleA);
+	BillboardImage textB(textHandleB);
+	textA.transform.position = { 0, 2, 10 };
+	textB.transform.position = { 0, 1, 10 };
+
+	Cube cubeA(texB);
+	Cube cubeB(texA);
 	cubeA.transform.position = { 0, -10, 0 };
 	cubeB.transform.position = { 0, 0, 10 };
 
@@ -183,7 +190,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		cubeA.transform.UpdateMatrix();
 		cubeA.UpdateFaces();
 		
-		cubeB.transform.rotation.y += XMConvertToRadians(5);
+		cubeB.transform.rotation.y += XMConvertToRadians(1);
 		cubeB.transform.UpdateMatrix();
 		cubeB.UpdateFaces();
 
@@ -202,7 +209,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		viewProjection.UpdateMatrix();
 
 		camera.Update();
-
+		textA.Update(camera.viewProjection);
+		textB.Update(camera.viewProjection);
+		
 		image.TransferBuffer(camera.viewProjection);
 		cubeA.TransferBuffer(camera.viewProjection);
 		cubeB.TransferBuffer(camera.viewProjection);
@@ -263,12 +272,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
-		cubeA.DrawCommands();
+		//cubeA.DrawCommands();
 		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
-		testFontImage.TransferBuffer(camera.viewProjection);
-		testFontImage.DrawCommands();
+		textA.TransferBuffer(camera.viewProjection);
+		textA.DrawCommands();
+		textB.TransferBuffer(camera.viewProjection);
+		textB.DrawCommands();
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());

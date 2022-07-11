@@ -11,7 +11,7 @@ public:
 	bool billboardY = false;
 
 	BillboardImage() {};
-	BillboardImage(TextureHandle texture, Vector2 size)
+	BillboardImage(TextureHandle texture, Vector2 size = {1, 1})
 	{
 		Init(texture, size);
 	}

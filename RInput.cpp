@@ -38,7 +38,7 @@ void RInput::InitInternal()
 
 	//排他制御レベルのセット
 	result = keyboard->SetCooperativeLevel(
-		RWindow::GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY //左から、アクティブウィンドウ,専有しない,Winキー無効
+		RWindow::GetWindowHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE // | DISCL_NOWINKEY //左から、アクティブウィンドウ,専有しない,Winキー無効
 	);
 	assert(SUCCEEDED(result));
 	result = mouse->SetCooperativeLevel(

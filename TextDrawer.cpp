@@ -51,9 +51,13 @@ Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace
 	int fontWidth = (GM.gmBlackBoxX + 3) / 4 * 4;
 	int fontHeight = GM.gmBlackBoxY;
 
-	//if (useAlign) {
-	//	fontHeight = tm.tmHeight;
-	//}
+	int baseLineY = tm.tmAscent;
+	int glyphOriginY = 0;
+
+	if (useAlign) {
+		fontHeight = tm.tmHeight;
+		glyphOriginY = baseLineY - GM.gmptGlyphOrigin.y;
+	}
 
 	int fontDataCount = fontWidth * fontHeight;
 
@@ -65,12 +69,17 @@ Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace
 		imageData[i] = Color(0, 0, 0, 0);
 	}
 
-	for (size_t i = 0; i < fontDataCount; i++) {
+	for (size_t i = 0; i < size; i++) {
+		size_t posX = i % fontWidth;
+		size_t posY = glyphOriginY + (i / fontWidth);
+
+		size_t access = (posY * fontWidth) + posX;
+
 		float grayScale = (float)ptr[i];
-		imageData[i].r = 1.0f;
-		imageData[i].g = 1.0f;
-		imageData[i].b = 1.0f;
-		imageData[i].a = (grayScale * 255.0f / 16) / 255.0f;
+		imageData[access].r = 1.0f;
+		imageData[access].g = 1.0f;
+		imageData[access].b = 1.0f;
+		imageData[access].a = (grayScale * 255.0f / 16) / 255.0f;
 	}
 
 	Texture texture = Texture();
@@ -161,7 +170,7 @@ TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string font
 	list<Texture> glyphlist;
 
 	for (size_t i = 0; i < wText.size(); i++) {
-		glyphlist.push_back(GetFontTexture(wText.substr(i, 1), _wTypeFace, fontSize));
+		glyphlist.push_back(GetFontTexture(wText.substr(i, 1), _wTypeFace, fontSize, true));
 	}
 
 	UINT64 textureWidth = 0;

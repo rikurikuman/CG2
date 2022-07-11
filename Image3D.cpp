@@ -2,11 +2,20 @@
 #include "RDirectX.h"
 #include "Vertex.h"
 
-Image3D::Image3D(TextureHandle texture, Vector2 size)
+Image3D::Image3D(TextureHandle texture, Vector2 size, bool forceSize)
 {
 	this->texture = texture;
-	this->size.x = size.x;
-	this->size.y = size.y;
+
+	if (forceSize) {
+		this->size.x = size.x;
+		this->size.y = size.y;
+	}
+	else {
+		scale = size;
+		Texture tex = TextureManager::Get(texture);
+		this->size.x = tex.resource->GetDesc().Width / (float)tex.resource->GetDesc().Height * scale.x;
+		this->size.y = scale.y;
+	}
 
 	Init();
 }

@@ -11,8 +11,7 @@ public:
 	Image3D faces[6];
 	Vector2 size = { 1, 1 };
 
-	Cube(Vector2 size = {1, 1});
-	Cube(TextureHandle texture, Vector2 size);
+	Cube(TextureHandle texture, Vector2 size = {1, 1}, bool forceSize = false);
 
 	/// <summary>
 	/// 指定した面のテクスチャをセットする

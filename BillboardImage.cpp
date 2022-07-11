@@ -2,7 +2,7 @@
 
 void BillboardImage::Init(TextureHandle texture, Vector2 size)
 {
-	image = Image3D(texture, size);
+	image = Image3D(texture, size, false);
 	image.SetParent(this);
 }
 
@@ -29,7 +29,7 @@ void BillboardImage::Update(const ViewProjection& vp)
 	mat[3][3] = 1;
 
 	transform.UpdateMatrix();
-	transform.matrix *= mat;
+	transform.matrix = mat * transform.matrix;
 
 	image.transform.UpdateMatrix();
 	TransferBuffer(vp);

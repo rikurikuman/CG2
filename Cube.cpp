@@ -1,68 +1,53 @@
 #include "Cube.h"
 #include "Vector3.h"
 
-Cube::Cube(Vector2 size)
+Cube::Cube(TextureHandle texture, Vector2 size, bool forceSize)
 {
 	this->size = size;
 	for (int i = 0; i < 6; i++) {
 		faces[i].SetParent(this);
+		faces[i].SetTexture(texture);
 	}
 
 	for (int i = 0; i < 4; i++) {
-		faces[i].size = size;
-	}
-	for (int i = 4; i < 6; i++) {
-		float dekaihou = max(size.x, size.y);
-		faces[i].size = { dekaihou, dekaihou };
-	}
-}
-
-Cube::Cube(TextureHandle texture, Vector2 size)
-{
-	this->size = size;
-	for (int i = 0; i < 6; i++) {
-		faces[i].SetParent(this);
-		faces[i].texture = texture;
+		faces[i].SetSize(size, forceSize);
 	}
 
-	for (int i = 0; i < 4; i++) {
-		faces[i].size = size;
-	}
+	Vector2 fSize = faces[Direction::Front].GetSize();
+
 	for (int i = 4; i < 6; i++) {
-		float dekaihou = max(size.x, size.y);
-		faces[i].size = { dekaihou, dekaihou };
+		faces[i].SetSize({ fSize.x, fSize.x }, true);
 	}
 
 	for (int i = 0; i < 6; i++) {
 		faces[i].SetParent(this);
-		faces[i].texture = texture;
 		faces[i].Init();
 	}
 
 	//ŽG‚ÉƒLƒ…[ƒu‚É‚·‚é‚æ
-	faces[Direction::Front].transform.position = { 0, 0, -size.x / 2.0f };
-	faces[Direction::Right].transform.position = { -size.x / 2.0f, 0, 0 };
+	faces[Direction::Front].transform.position = { 0, 0, -fSize.x / 2.0f };
+	faces[Direction::Right].transform.position = { -fSize.x / 2.0f, 0, 0 };
 	faces[Direction::Right].transform.rotation.y = Util::AngleToRadian(90);
-	faces[Direction::Back].transform.position = { 0, 0, size.x / 2.0f };
+	faces[Direction::Back].transform.position = { 0, 0, fSize.x / 2.0f };
 	faces[Direction::Back].transform.rotation.y = Util::AngleToRadian(180);
-	faces[Direction::Left].transform.position = { size.x / 2.0f, 0, 0 };
+	faces[Direction::Left].transform.position = { fSize.x / 2.0f, 0, 0 };
 	faces[Direction::Left].transform.rotation.y = Util::AngleToRadian(270);
-	faces[Direction::Top].transform.position = { 0, size.y / 2.0f, 0 };
+	faces[Direction::Top].transform.position = { 0, fSize.y / 2.0f, 0 };
 	faces[Direction::Top].transform.rotation = { Util::AngleToRadian(90), Util::AngleToRadian(180), 0};
-	faces[Direction::Bottom].transform.position = { 0, -size.y / 2.0f, 0 };
+	faces[Direction::Bottom].transform.position = { 0, -fSize.y / 2.0f, 0 };
 	faces[Direction::Bottom].transform.rotation = { Util::AngleToRadian(-90), 0, 0 };
 }
 
 void Cube::SetTexture(TextureHandle texture, Direction direction)
 {
-	faces[direction].texture = texture;
+	faces[direction].SetTexture(texture);
 	faces[direction].Init();
 }
 
 void Cube::SetAllTexture(TextureHandle texture)
 {
 	for (int i = 0; i < 6; i++) {
-		faces[i].texture = texture;
+		faces[i].SetTexture(texture);
 		faces[i].Init();
 	}
 }
