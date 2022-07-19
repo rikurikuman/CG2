@@ -4,19 +4,19 @@
 
 using namespace std;
 
-Texture TextDrawer::GetFontTexture(std::string glyph, std::string fontTypeFace, UINT fontSize, bool useAlign)
+FontTexture TextDrawer::GetFontTexture(std::string glyph, std::string fontTypeFace, UINT fontSize, bool useAlign)
 {
 	wstring wGlyph = Util::ConvertStringToWString(glyph);
 	wstring wFontTypeFace = Util::ConvertStringToWString(fontTypeFace);
 	return GetFontTexture(wGlyph, wFontTypeFace, fontSize, useAlign);
 }
 
-Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace, UINT fontSize, bool useAlign)
+FontTexture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace, UINT fontSize, bool useAlign)
 {
 	TextDrawer* drawer = GetInstance();
 
 	if (glyph.length() != 1) {
-		return Texture();
+		return FontTexture();
 	}
 
 	Glyph glyphData = { glyph, fontTypeFace, fontSize };
@@ -27,7 +27,7 @@ Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace
 	}
 
 	TEXTMETRIC tm;
-	GLYPHMETRICS GM;
+	GLYPHMETRICS gm;
 	CONST MAT2 Mat = { {0,1},{0,0},{0,0},{0,1} };
 
 	HFONT _font = CreateFont(fontSize, 0, 0, 0, FW_REGULAR, false, false, false, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 0, fontTypeFace.c_str());
@@ -38,30 +38,30 @@ Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace
 
 	OutputDebugString((glyph + L"\n").c_str());
 
-	DWORD size = GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &GM, 0, NULL, &Mat);
+	DWORD size = GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &gm, 0, NULL, &Mat);
 	BYTE* ptr = new BYTE[size];
 	GetTextMetrics(hdc, &tm);
-	GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &GM, size, ptr, &Mat);
+	GetGlyphOutline(hdc, code, GGO_GRAY4_BITMAP, &gm, size, ptr, &Mat);
 
 	// オブジェクトの開放
 	SelectObject(hdc, oldFont);
 	DeleteObject(_font);
 	ReleaseDC(NULL, hdc);
 
-	int fontWidth = (GM.gmBlackBoxX + 3) / 4 * 4;
-	int fontHeight = GM.gmBlackBoxY;
+	int fontWidth = (gm.gmBlackBoxX + 3) / 4 * 4;
+	int fontHeight = size / fontWidth;
 
 	int baseLineY = tm.tmAscent;
 	int glyphOriginY = 0;
 
 	if (useAlign) {
-		fontHeight = tm.tmHeight;
-		glyphOriginY = baseLineY - GM.gmptGlyphOrigin.y;
+		glyphOriginY = baseLineY - gm.gmptGlyphOrigin.y;
+		fontHeight = glyphOriginY + fontHeight;
 	}
 
 	int fontDataCount = fontWidth * fontHeight;
 
-	OutputDebugString((wstring(L"fontWidth: ") + to_wstring(fontWidth) + L"(" + to_wstring(GM.gmBlackBoxX) + L")\n").c_str());
+	OutputDebugString((wstring(L"fontWidth: ") + to_wstring(fontWidth) + L"(" + to_wstring(gm.gmBlackBoxX) + L")\n").c_str());
 	OutputDebugString((wstring(L"fontHeight: ") + to_wstring(fontHeight) + L"\n").c_str());
 
 	Color* imageData = new Color[fontDataCount];
@@ -70,10 +70,15 @@ Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace
 	}
 
 	for (size_t i = 0; i < size; i++) {
+		//OutputDebugString((to_wstring(i) + L": " + to_wstring((float)ptr[i]) + L"\n").c_str());
+	}
+
+	for (size_t i = 0; i < size; i++) {
 		size_t posX = i % fontWidth;
 		size_t posY = glyphOriginY + (i / fontWidth);
 
 		size_t access = (posY * fontWidth) + posX;
+		assert(access < fontDataCount);
 
 		float grayScale = (float)ptr[i];
 		imageData[access].r = 1.0f;
@@ -119,47 +124,17 @@ Texture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontTypeFace
 		sizeof(Color) * fontDataCount
 	);
 
+	delete[] ptr;
 	delete[] imageData;
 
-	if (drawer->nextIndex >= TextDrawer::numSRVDescritors) {
-		drawer->nextIndex = 0;
-	}
+	FontTexture ftex;
+	ftex.texture = texture;
+	ftex.tm = tm;
+	ftex.gm = gm;
 
-	std::list<Glyph> eraseList;
-	for (std::pair<Glyph, Texture> p : drawer->glyphMap) {
-		if (p.second.heapIndex == drawer->nextIndex) {
-			eraseList.push_back(p.first);
-		}
-	}
+	drawer->glyphMap[glyphData] = ftex;
 
-	for (Glyph g : eraseList) {
-		drawer->glyphMap.erase(g);
-	}
-
-	//シェーダーリソースビュー
-	D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = drawer->srvHeap->GetCPUDescriptorHandleForHeapStart();
-	D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle = drawer->srvHeap->GetGPUDescriptorHandleForHeapStart();
-	size_t incrementSize = RDirectX::GetInstance()->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	_cpuHandle.ptr += drawer->nextIndex * incrementSize;
-	_gpuHandle.ptr += drawer->nextIndex * incrementSize;
-	texture.cpuHandle = _cpuHandle;
-	texture.gpuHandle = _gpuHandle;
-	texture.heapIndex = drawer->nextIndex;
-
-	//シェーダーリソースビュー設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = texture.resource->GetDesc().Format;
-	srvDesc.Shader4ComponentMapping =
-		D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = texture.resource->GetDesc().MipLevels;
-
-	//生成
-	RDirectX::GetInstance()->device->CreateShaderResourceView(texture.resource.Get(), &srvDesc, _cpuHandle);
-
-	drawer->glyphMap[glyphData] = texture;
-
-	return texture;
+	return ftex;
 }
 
 TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string fontTypeFace, UINT fontSize, std::string handle)
@@ -167,19 +142,25 @@ TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string font
 	wstring wText = Util::ConvertStringToWString(text);
 	wstring _wTypeFace = Util::ConvertStringToWString(fontTypeFace);
 
-	list<Texture> glyphlist;
+	list<FontTexture> glyphlist;
 
 	for (size_t i = 0; i < wText.size(); i++) {
 		glyphlist.push_back(GetFontTexture(wText.substr(i, 1), _wTypeFace, fontSize, true));
 	}
 
+	UINT64 originPos = 0;
 	UINT64 textureWidth = 0;
 	UINT textureHeight = 0;
 
-	for (Texture tex : glyphlist) {
-		textureWidth += tex.resource->GetDesc().Width;
+	for (FontTexture fTex : glyphlist) {
+		originPos += fTex.gm.gmptGlyphOrigin.x;
+		textureWidth += fTex.texture.resource->GetDesc().Width;
+		originPos += fTex.gm.gmCellIncX;
+		if (textureWidth < originPos) {
+			textureWidth += originPos - textureWidth;
+		}
 
-		UINT height = tex.resource->GetDesc().Height;
+		UINT height = fTex.texture.resource->GetDesc().Height;
 		if (textureHeight < height) {
 			textureHeight = height;
 		}
@@ -192,23 +173,24 @@ TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string font
 		imageData[i] = Color(0, 0, 0, 0);
 	}
 
-	UINT64 currentPos = 0;
+	UINT64 currentPos = 0; //現在の原点位置
 
-	for (Texture tex : glyphlist) {
-		size_t _width = tex.resource->GetDesc().Width;
-		size_t _height = tex.resource->GetDesc().Height;
+	for (FontTexture tex : glyphlist) {
+		size_t _width = tex.texture.resource->GetDesc().Width;
+		size_t _height = tex.texture.resource->GetDesc().Height;
 		size_t _dataCount = _width * _height;
 
 		Color* _image = new Color[_dataCount];
 
-		HRESULT result = tex.resource->ReadFromSubresource(_image, (UINT)(sizeof(Color) * _width), (UINT)(sizeof(Color) * _height), 0, nullptr);
+		HRESULT result = tex.texture.resource->ReadFromSubresource(_image, (UINT)(sizeof(Color) * _width), (UINT)(sizeof(Color) * _height), 0, nullptr);
 		assert(SUCCEEDED(result));
 
 		for (size_t i = 0; i < _dataCount; i++) {
-			size_t posX = currentPos + (i % _width);
+			size_t posX = currentPos + tex.gm.gmptGlyphOrigin.x + (i % _width);
 			size_t posY = i / _width;
 
 			size_t access = (posY * textureWidth) + posX;
+			assert(access < imageDataCount);
 
 			imageData[access].r = _image[i].r;
 			imageData[access].g = _image[i].g;
@@ -216,7 +198,7 @@ TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string font
 			imageData[access].a = _image[i].a;
 		}
 
-		currentPos += _width;
+		currentPos += tex.gm.gmCellIncX;
 
 		delete[] _image;
 	}
@@ -269,16 +251,4 @@ TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string font
 
 void TextDrawer::Init()
 {
-	HRESULT result;
-
-	//デスクリプタヒープ(SRV)
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; //シェーダーから見える
-	srvHeapDesc.NumDescriptors = numSRVDescritors;
-
-	//生成
-	srvHeap = nullptr;
-	result = RDirectX::GetInstance()->device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
-	assert(SUCCEEDED(result));
 }

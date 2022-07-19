@@ -52,4 +52,22 @@ public:
 
 	//メッセージ処理
 	static void ProcessMessage();
+
+	/// <summary>
+	/// マウスカーソル移動
+	/// ウィンドウの左上を0, 0として指定する
+	/// </summary>
+	/// <param name="posX">移動先X座標</param>
+	/// <param name="posY">移動先Y座標</param>
+	static void SetMousePos(int posX, int posY);
+
+	/// <summary>
+	/// マウスカーソル移動
+	/// モニターの左上を0, 0として指定する
+	/// </summary>
+	/// <param name="posX">移動先X座標</param>
+	/// <param name="posY">移動先Y座標</param>
+	static void SetAbsMousePos(int posX, int posY);
+
+	static void SetMouseHideFlag(bool hide);
 };

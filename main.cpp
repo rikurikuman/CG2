@@ -51,11 +51,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	//‚¢‚ë‚¢‚ë
 
-	//TextureManager::Register(TextDrawer::GetFontTexture("‚Ù", "‚l‚r ‚o–¾’©", 16), "ƒeƒXƒg");
-
-	TextureHandle testStringHandle = TextDrawer::CreateStringTexture("hogehoge‚ ‚¢‚¤‚¦int‚Ù‚°", "‚l‚r ‚o–¾’©", 128);
-
-	Sprite testSprite(testStringHandle, { 0.0f, 0.0f });
+	//TextureHandle testStringHandle = TextDrawer::CreateStringTexture("hogehoge‚ ‚¢‚¤‚¦int‚Ù‚°", "‚l‚r ‚o–¾’©", 128);
+	//Sprite testSprite(testStringHandle, { 0.0f, 0.0f });
 
 	//‚¢‚ë‚¢‚ë(GS‚Ä‚·‚Æ)
 
@@ -116,12 +113,23 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Sprite sprite(texB, { 0, 0 });
 	Image3D image(texA);
 
+	TextDrawer::CreateStringTexture("g", "", 24);
+
+	Sprite controlDescText1(TextDrawer::CreateStringTexture("WASD:ˆÚ“®, ƒ}ƒEƒX‚ÅŽ‹“_‘€ì", "", 24), {0, 1});
+	Sprite controlDescText2(TextDrawer::CreateStringTexture("Space:ã¸, LShift:‰º~", "", 24), {0, 1});
+	controlDescText1.transform.position = { 0, (float)RWindow::GetHeight() - 24, 0 };
+	controlDescText2.transform.position = { 0, (float)RWindow::GetHeight(), 0 };
+	controlDescText1.transform.UpdateMatrix();
+	controlDescText2.transform.UpdateMatrix();
+
 	TextureHandle textHandleA = TextDrawer::CreateStringTexture("ƒrƒ‹ƒ{[ƒh‚É“\‚Á‚Ä‚Ý‚½", "‚l‚r ‚o–¾’©", 32);
 	TextureHandle textHandleB = TextDrawer::CreateStringTexture("ƒl[ƒ€ƒ^ƒO‚Ý‚½‚¢‚Å‚¢‚¢‚í‚Ë", "‚l‚r ‚o–¾’©", 32);
 	BillboardImage textA(textHandleA);
 	BillboardImage textB(textHandleB);
 	textA.transform.position = { 0, 2, 10 };
 	textB.transform.position = { 0, 1, 10 };
+	textA.billboardY = true;
+	textB.billboardY = true;
 
 	Cube cubeA(texB);
 	Cube cubeB(texA);
@@ -142,6 +150,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		if (RWindow::GetInstance()->GetMessageStructure().message == WM_QUIT) {
 			break;
+		}
+
+		if (GetActiveWindow() == RWindow::GetWindowHandle()) {
+			RWindow::SetMouseHideFlag(true);
+			RWindow::SetMousePos(RWindow::GetWidth() / 2, RWindow::GetHeight() / 2);
+		}
+		else {
+			RWindow::SetMouseHideFlag(false);
 		}
 
 		RInput::Update();
@@ -276,19 +292,21 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
-		textA.TransferBuffer(camera.viewProjection);
 		textA.DrawCommands();
-		textB.TransferBuffer(camera.viewProjection);
 		textB.DrawCommands();
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
 
+		controlDescText1.TransferBuffer();
+		controlDescText2.TransferBuffer();
+		controlDescText1.DrawCommands();
+		controlDescText2.DrawCommands();
+
 		//sprite.DrawCommands();
-		testSprite.transform.UpdateMatrix();
-		testSprite.TransferBuffer();
-		testSprite.DrawCommands();
-		
+		//testSprite.transform.UpdateMatrix();
+		//testSprite.TransferBuffer();
+		//testSprite.DrawCommands();
 
 		//////////////////
 

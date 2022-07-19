@@ -47,6 +47,38 @@ void RWindow::ProcessMessage()
 	}
 }
 
+void RWindow::SetMousePos(int posX, int posY)
+{
+	int xPos_absolute, yPos_absolute;
+
+	WINDOWINFO windowInfo;
+
+	//ウィンドウの位置を取得
+	windowInfo.cbSize = sizeof(WINDOWINFO);
+	GetWindowInfo(RWindow::GetWindowHandle(), &windowInfo);
+
+	//マウスの移動先の絶対座標（モニター左上からの座標）
+	xPos_absolute = posX + windowInfo.rcWindow.left;
+	yPos_absolute = posY + windowInfo.rcWindow.top + 35; //ウィンドウのタイトルバーの分（35px）をプラス
+
+	SetCursorPos(xPos_absolute, yPos_absolute);
+}
+
+void RWindow::SetAbsMousePos(int posX, int posY)
+{
+	SetCursorPos(posX, posY);
+}
+
+void RWindow::SetMouseHideFlag(bool hide)
+{
+	if (hide) {
+		while (ShowCursor(0) >= 0);
+	}
+	else {
+		while (ShowCursor(1) < 0);
+	}
+}
+
 LRESULT _DefWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg) {
