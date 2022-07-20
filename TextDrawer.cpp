@@ -62,15 +62,11 @@ FontTexture TextDrawer::GetFontTexture(std::wstring glyph, std::wstring fontType
 	int fontDataCount = fontWidth * fontHeight;
 
 	OutputDebugString((wstring(L"fontWidth: ") + to_wstring(fontWidth) + L"(" + to_wstring(gm.gmBlackBoxX) + L")\n").c_str());
-	OutputDebugString((wstring(L"fontHeight: ") + to_wstring(fontHeight) + L"\n").c_str());
+	OutputDebugString((wstring(L"fontHeight: ") + to_wstring(fontHeight) + L"(" + to_wstring(size / fontWidth) + L")\n").c_str());
 
 	Color* imageData = new Color[fontDataCount];
 	for (size_t i = 0; i < fontDataCount; i++) {
 		imageData[i] = Color(0, 0, 0, 0);
-	}
-
-	for (size_t i = 0; i < size; i++) {
-		//OutputDebugString((to_wstring(i) + L": " + to_wstring((float)ptr[i]) + L"\n").c_str());
 	}
 
 	for (size_t i = 0; i < size; i++) {

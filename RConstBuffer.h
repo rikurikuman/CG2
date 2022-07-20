@@ -3,6 +3,7 @@
 #include <cassert>
 #include <wrl.h>
 #include "RDirectX.h"
+#include "Util.h"
 
 template <typename T>
 class RConstBuffer
@@ -34,6 +35,10 @@ private:
 			IID_PPV_ARGS(&constBuff)
 		);
 		assert(SUCCEEDED(result));
+
+		Util::debugInt++;
+
+		constBuff->SetName(std::to_wstring(Util::debugInt).c_str());
 	}
 
 public:
@@ -48,6 +53,11 @@ public:
 		UnMap();
 	}
 
+	RConstBuffer<T>& operator=(const RConstBuffer<T>& o) {
+		*this->constMap = *o.constMap;
+		return(*this);
+	}
+
 	void Map() {
 		HRESULT result;
 		result = constBuff->Map(0, nullptr, (void**)&constMap); //マッピング
@@ -56,6 +66,6 @@ public:
 
 	void UnMap() {
 		constBuff->Unmap(0, nullptr);
+		constMap = nullptr;
 	}
 };
-

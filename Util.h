@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 namespace Util {
 	extern bool debugBool;
+    extern int debugInt;
 	constexpr float PI = 3.1415926535897932384626f;
 
 	//DegreeからRadianへ変換する
@@ -28,7 +30,7 @@ namespace Util {
         /* フォーマット失敗 */
         if (str_len < 0)
         {
-            runtime_error("String Formatting Error");
+            throw std::runtime_error("String Formatting Error");
         }
 
         /* バッファサイズを算出(文字列長 + null文字サイズ) */

@@ -33,13 +33,17 @@ using namespace DirectX;
 const int WIN_WIDTH = 1280;
 const int WIN_HEIGHT = 720;
 
+void DrawSimpleTriangle(Color color, ViewProjection viewProjection);
+
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #ifdef _DEBUG
-	ID3D12Debug* debugController;
+	ComPtr<ID3D12Debug1> debugController;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 		debugController->EnableDebugLayer();
+		debugController->SetEnableGPUBasedValidation(TRUE);
 	}
 #endif
+
 	//WindowsAPI
 	RWindow::Init();
 
@@ -49,56 +53,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	//DirectInput
 	RInput::Init();
 
+#ifdef _DEBUG
+	ComPtr<ID3D12InfoQueue> infoQueue;
+	if (SUCCEEDED(RDirectX::GetInstance()->device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+	}
+#endif
+
 	//いろいろ
-
-	//TextureHandle testStringHandle = TextDrawer::CreateStringTexture("hogehogeあいうえintほげ", "ＭＳ Ｐ明朝", 128);
-	//Sprite testSprite(testStringHandle, { 0.0f, 0.0f });
-
-	//いろいろ(GSてすと)
-
-	Shader::Register("TestVS", Shader("Shader/TestVS.hlsl", "main", "vs_5_0"));
-	Shader::Register("TestGS", Shader("Shader/TestGS.hlsl", "main", "gs_5_0"));
-	Shader::Register("TestPS", Shader("Shader/TestPS.hlsl", "main", "ps_5_0"));
-
-	RootSignature testRS = RDirectX::GetInstance()->rootSignature;
-
-	DescriptorRange descriptorRange{};
-	descriptorRange.NumDescriptors = 1; //一度の描画に使うテクスチャが1枚なので1
-	descriptorRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRange.BaseShaderRegister = 0; //テクスチャレジスタ0番
-	descriptorRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	RootParamaters rootParams(2);
-	//テクスチャレジスタ0番
-	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; //デスクリプタテーブル
-	rootParams[0].DescriptorTable = DescriptorRanges{ descriptorRange };
-	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-	//定数バッファ1番(ViewProjection)
-	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
-	rootParams[1].Descriptor.ShaderRegister = 0; //定数バッファ番号
-	rootParams[1].Descriptor.RegisterSpace = 0; //デフォルト値
-	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
-
-	testRS.desc.RootParamaters = rootParams;
-	testRS.Create();
-
-	GraphicsPipeline testPL = RDirectX::GetInstance()->pipelineState;
-	testPL.desc.VS = Shader("Shader/TestVS.hlsl", "main", "vs_5_0");
-	testPL.desc.GS = Shader("Shader/TestGS.hlsl", "main", "gs_5_0");
-	testPL.desc.PS = Shader("Shader/TestPS.hlsl", "main", "ps_5_0");
-	testPL.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	testPL.desc.InputLayout = {
-		{
-			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		}
-	};
-	testPL.desc.pRootSignature = testRS.ptr.Get();
-	testPL.Create();
-
-	VertexBuffer testPoint(std::vector<VertexP> { VertexP() });
-	RConstBuffer<ViewProjectionBuffer> testViewProBuff;
 
 	///////////////////
 
@@ -108,12 +71,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	TextureHandle texA = TextureManager::Load("Resources/conflict.jpg");
 	TextureHandle texB = TextureManager::Load("Resources/bg.png");
 
-	RConstBuffer<MaterialBuffer> materialBuff;
-
 	Sprite sprite(texB, { 0, 0 });
-	Image3D image(texA);
-
-	TextDrawer::CreateStringTexture("g", "", 24);
 
 	Sprite controlDescText1(TextDrawer::CreateStringTexture("WASD:移動, マウスで視点操作", "", 24), {0, 1});
 	Sprite controlDescText2(TextDrawer::CreateStringTexture("Space:上昇, LShift:下降", "", 24), {0, 1});
@@ -122,28 +80,60 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	controlDescText1.transform.UpdateMatrix();
 	controlDescText2.transform.UpdateMatrix();
 
-	TextureHandle textHandleA = TextDrawer::CreateStringTexture("ビルボードに貼ってみた", "ＭＳ Ｐ明朝", 32);
-	TextureHandle textHandleB = TextDrawer::CreateStringTexture("ネームタグみたいでいいわね", "ＭＳ Ｐ明朝", 32);
-	BillboardImage textA(textHandleA);
-	BillboardImage textB(textHandleB);
-	textA.transform.position = { 0, 2, 10 };
-	textB.transform.position = { 0, 1, 10 };
+	BillboardImage textA(TextDrawer::CreateStringTexture("必須課題:色が変わる三角形", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
+	BillboardImage textB(TextDrawer::CreateStringTexture("元のテクスチャに緑成分がないので緑は出ません", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
+	textA.transform.position = { 0, 1.0f, 0 };
+	textB.transform.position = { 0, 0.75f, 0 };
 	textA.billboardY = true;
 	textB.billboardY = true;
+
+	BillboardImage text3(TextDrawer::CreateStringTexture("箱とかの描画もできます", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
+	text3.transform.position = { 0, 1, 10 };
+	text3.billboardY = true;
 
 	Cube cubeA(texB);
 	Cube cubeB(texA);
 	cubeA.transform.position = { 0, -10, 0 };
 	cubeB.transform.position = { 0, 0, 10 };
 
-	ViewProjection viewProjection;
-	viewProjection.eye = { 0, 0, -10 };
-	viewProjection.aspect = (float)WIN_WIDTH / WIN_HEIGHT;
-	viewProjection.UpdateMatrix();
-
-	float angle = 0.0f; //カメラの回転角
-
 	DebugCamera camera({0, 0, -10});
+
+	/// 課題用
+
+	GraphicsPipeline simplePS = RDirectX::GetInstance()->pipelineState;
+	simplePS.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; //カリングしなくする
+	simplePS.Create();
+
+	VertexPNU simpleTriVertices[] = {
+		{{ -0.5f, -0.5, 0.0f }, {}, {0.0f, 1.0f}}, //左下
+		{{ -0.5f,  0.5, 0.0f }, {}, {0.0f, 0.0f}}, //左上
+		{{  0.5f, -0.5, 0.0f }, {}, {1.0f, 1.0f}}, //右下
+	};
+
+	//頂点インデックスデータ
+	UINT simpleTriIndices[] = {
+		0, 1, 2,
+	};
+
+	VertexPNU::CalcNormalVec(simpleTriVertices, simpleTriIndices, _countof(simpleTriIndices));
+
+	VertexBuffer simpleTriVertBuff(simpleTriVertices, _countof(simpleTriVertices));
+	IndexBuffer simpleTriIndexBuff(simpleTriIndices, _countof(simpleTriIndices));
+
+	Material simpleTriMaterial;
+	simpleTriMaterial.color = Color(1, 1, 1, 1);
+	RConstBuffer<MaterialBuffer> simpleTriMaterialBuff;
+	simpleTriMaterial.Transfer(simpleTriMaterialBuff.constMap);
+
+	RConstBuffer<TransformBuffer> simpleTriTransformBuff;
+	Transform simpleTriTransform;
+	simpleTriTransform.Transfer(simpleTriTransformBuff.constMap);
+
+	RConstBuffer<ViewProjectionBuffer> simpleTriViewProjectionBuff;
+
+	HSVA triColor = { 0, 255, 255, 255 };
+
+	//////////////////////////////////////
 
 	while (true) {
 		RWindow::ProcessMessage();
@@ -164,13 +154,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		if (RInput::GetKeyDown(DIK_F1)) {
 			Util::debugBool = !Util::debugBool;
-		}
-
-		if (RInput::GetKey(DIK_1)) {
-			materialBuff.constMap->color = { 1, 0, 0, 0.5f };
-		}
-		else {
-			materialBuff.constMap->color = { 1, 1, 1, 1 };
 		}
 
 		if (RInput::GetKey(DIK_SPACE)) {
@@ -210,35 +193,26 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		cubeB.transform.UpdateMatrix();
 		cubeB.UpdateFaces();
 
-		if (RInput::GetKey(DIK_W)) {
-			viewProjection.eye.z += 0.1f;
-		}
-		if (RInput::GetKey(DIK_S)) {
-			viewProjection.eye.z -= 0.1f;
-		}
-		if (RInput::GetKey(DIK_A)) {
-			viewProjection.eye.x -= 0.1f;
-		}
-		if (RInput::GetKey(DIK_D)) {
-			viewProjection.eye.x += 0.1f;
-		}
-		viewProjection.UpdateMatrix();
-
 		camera.Update();
 		textA.Update(camera.viewProjection);
 		textB.Update(camera.viewProjection);
-		
-		image.TransferBuffer(camera.viewProjection);
+		text3.Update(camera.viewProjection);
+
 		cubeA.TransferBuffer(camera.viewProjection);
 		cubeB.TransferBuffer(camera.viewProjection);
 
 		sprite.transform.position = { 0, 0, 0 };
 		sprite.transform.scale = { 0.1f, 0.1f, 1 };
 		sprite.transform.UpdateMatrix();
+		sprite.TransferBuffer();
 
 		hogeObj.transform.scale = { 4,4,4 };
 		hogeObj.transform.UpdateMatrix();
 		hogeObj.TransferBuffer(camera.viewProjection);
+
+		triColor.h++;
+		simpleTriMaterialBuff.constMap->color = Color::convertFromHSVA(triColor);
+		simpleTriViewProjectionBuff.constMap->matrix = camera.viewProjection.matrix;
 
 		//以下描画
 		RDirectX::SetBackBufferToRenderTarget();
@@ -285,15 +259,27 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//描画コマンド
 
+		//色変わる三角形
+		RDirectX::GetInstance()->cmdList->SetPipelineState(simplePS.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
+		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &simpleTriVertBuff.view);
+		RDirectX::GetInstance()->cmdList->IASetIndexBuffer(&simpleTriIndexBuff.view);
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, simpleTriMaterialBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(2, simpleTriTransformBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(3, simpleTriViewProjectionBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get("").gpuHandle);
+		RDirectX::GetInstance()->cmdList->DrawIndexedInstanced(3, 1, 0, 0, 0); // 全ての頂点を使って描画
+
 		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
-		//cubeA.DrawCommands();
+		cubeA.DrawCommands();
 		cubeB.DrawCommands();
 		hogeObj.DrawCommands();
 
 		textA.DrawCommands();
 		textB.DrawCommands();
+		text3.DrawCommands();
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
@@ -304,22 +290,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		controlDescText2.DrawCommands();
 
 		//sprite.DrawCommands();
-		//testSprite.transform.UpdateMatrix();
-		//testSprite.TransferBuffer();
-		//testSprite.DrawCommands();
-
-		//////////////////
-
-	/*	testViewProBuff.constMap->matrix = camera.viewProjection.matrix;
-
-		RDirectX::GetInstance()->cmdList->SetPipelineState(testPL.ptr.Get());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(testRS.ptr.Get());
-		RDirectX::GetInstance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
-		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &testPoint.view);
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, testViewProBuff.constBuff->GetGPUVirtualAddress());
-		RDirectX::GetInstance()->cmdList->DrawInstanced(1, 1, 0, 0);*/
-
-		///////////////////
 
 		//リソースバリアを表示に戻す
 		RDirectX::CloseResourceBarrier(RDirectX::GetCurrentBackBufferResource());
@@ -327,4 +297,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::RunDraw();
 	}
 	return 0;
+}
+
+void DrawSimpleTriangle(Color color, ViewProjection viewProjection)
+{
+	
 }

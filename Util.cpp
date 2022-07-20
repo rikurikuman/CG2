@@ -4,6 +4,7 @@
 using namespace std;
 
 bool Util::debugBool = false;
+int Util::debugInt = 0;
 
 float Util::AngleToRadian(float angle)
 {

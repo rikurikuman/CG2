@@ -8,6 +8,8 @@ protected:
 	Obj3D* parent = nullptr;
 
 public:
+	virtual ~Obj3D() {}
+
 	Transform transform;
 
 	void SetParent(Obj3D* parent) {

@@ -17,6 +17,7 @@ public:
 	Shader(std::string filename, std::string entrypoint, std::string target);
 
 	static void Register(std::string id, Shader shader);
+	static Shader Get(std::string id, std::string filename, std::string entrypoint, std::string target);
 	static Shader GetRegistered(std::string id);
 
 private:

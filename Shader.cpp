@@ -20,6 +20,16 @@ void Shader::Register(std::string id, Shader shader)
 	ShaderRegister::GetInstance()->shaderRegister[id] = shader;
 }
 
+Shader Shader::Get(std::string id, std::string filename, std::string entrypoint, std::string target)
+{
+	Shader res = GetRegistered(id);
+	if (!res.succeeded) {
+		res = Shader(filename, entrypoint, target);
+		Register(id, res);
+	}
+	return res;
+}
+
 Shader Shader::GetRegistered(std::string id)
 {
 	std::unordered_map<std::string, Shader>& map = ShaderRegister::GetInstance()->shaderRegister;
