@@ -65,13 +65,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	///////////////////
 
-	Model model = Model::Load("Resources/skydome/", "skydome.obj");
-	ModelObj hogeObj(&model);
-
-	TextureHandle texA = TextureManager::Load("Resources/conflict.jpg");
-	TextureHandle texB = TextureManager::Load("Resources/bg.png");
-
-	Sprite sprite(texB, { 0, 0 });
+	Model skydomeModel = Model::Load("Resources/skydome/", "skydome.obj");
+	ModelObj skydome(&skydomeModel);
 
 	Sprite controlDescText1(TextDrawer::CreateStringTexture("WASD:ˆÚ“®, ƒ}ƒEƒX‚ÅŽ‹“_‘€ì", "", 24), {0, 1});
 	Sprite controlDescText2(TextDrawer::CreateStringTexture("Space:ã¸, LShift:‰º~", "", 24), {0, 1});
@@ -80,25 +75,50 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	controlDescText1.transform.UpdateMatrix();
 	controlDescText2.transform.UpdateMatrix();
 
-	BillboardImage textA(TextDrawer::CreateStringTexture("•K{‰Û‘è:F‚ª•Ï‚í‚éŽOŠpŒ`", "‚l‚r ‚o–¾’©", 32), {0.25f, 0.25f});
-	BillboardImage textB(TextDrawer::CreateStringTexture("Œ³‚ÌƒeƒNƒXƒ`ƒƒ‚É—Î¬•ª‚ª‚È‚¢‚Ì‚Å—Î‚Ío‚Ü‚¹‚ñ", "‚l‚r ‚o–¾’©", 32), {0.25f, 0.25f});
-	textA.transform.position = { 0, 1.0f, 0 };
-	textB.transform.position = { 0, 0.75f, 0 };
-	textA.billboardY = true;
-	textB.billboardY = true;
+	BillboardImage text1(TextDrawer::CreateStringTexture("•K{‰Û‘è:F‚ª•Ï‚í‚éŽOŠpŒ`", "‚l‚r ‚o–¾’©", 32), {0.25f, 0.25f});
+	BillboardImage text2(TextDrawer::CreateStringTexture("ƒQ[ƒ~ƒ“ƒO”Âƒ|ƒŠ", "‚l‚r ‚o–¾’©", 32), {0.25f, 0.25f});
+	text1.transform.position = { 0, 1.0f, 0 };
+	text2.transform.position = { 0, 0.75f, 0 };
+	text1.billboardY = true;
+	text2.billboardY = true;
 
-	BillboardImage text3(TextDrawer::CreateStringTexture("” ‚Æ‚©‚Ì•`‰æ‚à‚Å‚«‚Ü‚·", "‚l‚r ‚o–¾’©", 32), {0.25f, 0.25f});
+	Cube cube(TextureManager::Load("Resources/conflict.jpg"));
+	cube.transform.position = { 0, 0, 10 };
+
+	BillboardImage text3(TextDrawer::CreateStringTexture("•¡”‚ÌƒeƒNƒXƒ`ƒƒ‚ð“Ç‚Ýž‚ñ‚Å•`‰æ‚Å‚«‚Ü‚·", "‚l‚r ‚o–¾’©", 32), { 0.25f, 0.25f });
 	text3.transform.position = { 0, 1, 10 };
 	text3.billboardY = true;
 
-	Cube cubeA(texB);
-	Cube cubeB(texA);
-	cubeA.transform.position = { 0, -10, 0 };
-	cubeB.transform.position = { 0, 0, 10 };
+	Model demoModel1 = Model::Load("Resources/", "encyu.obj");
+	ModelObj demoModelObj1(&demoModel1);
+	demoModelObj1.transform.position = { 0, 0, 20 };
+	demoModelObj1.transform.scale = { 0.5f, 0.5f, 0.5f };
+	demoModelObj1.transform.rotation.y = Util::AngleToRadian(180);
+	demoModelObj1.transform.UpdateMatrix();
+
+	Model demoModel2 = Model::Load("Resources/", "monkey.obj");
+	ModelObj demoModelObj2(&demoModel2);
+	demoModelObj2.transform.position = { 2, 0, 20 };
+	demoModelObj2.transform.scale = { 0.5f, 0.5f, 0.5f };
+	demoModelObj2.transform.rotation.y = Util::AngleToRadian(180);
+	demoModelObj2.transform.UpdateMatrix();
+
+	Model demoModel3 = Model::Load("Resources/", "hoge.obj");
+	ModelObj demoModelObj3(&demoModel3);
+	demoModelObj3.transform.position = { -2, 0, 20 };
+	demoModelObj3.transform.scale = { 1, 1, 1 };
+	demoModelObj3.transform.rotation.y = Util::AngleToRadian(180);
+	demoModelObj3.transform.UpdateMatrix();
+
+	BillboardImage text4(TextDrawer::CreateStringTexture("u.objvŒ`Ž®‚Ìƒ‚ƒfƒ‹‚ð“Ç‚Ýž‚ñ‚Å•`‰æ‚Å‚«‚Ü‚·", "‚l‚r ‚o–¾’©", 32), { 0.25f, 0.25f });
+	BillboardImage text5(TextDrawer::CreateStringTexture("Žü‚è‚ÉŒ©‚¦‚Ä‚é“V‹…‚àƒ‚ƒfƒ‹‚©‚ç“Ç‚Ýž‚ñ‚Å‚Ü‚·", "‚l‚r ‚o–¾’©", 32), { 0.25f, 0.25f });
+	text4.transform.position = { 0, 1.25f, 20 };
+	text4.billboardY = true;
+	text5.transform.position = { 0, 1, 20 };
+	text5.billboardY = true;
 
 	DebugCamera camera({0, 0, -10});
 
-	/// ‰Û‘è—p
 
 	GraphicsPipeline simplePS = RDirectX::GetInstance()->pipelineState;
 	simplePS.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; //ƒJƒŠƒ“ƒO‚µ‚È‚­‚·‚é
@@ -155,60 +175,27 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (RInput::GetKeyDown(DIK_F1)) {
 			Util::debugBool = !Util::debugBool;
 		}
-
-		if (RInput::GetKey(DIK_SPACE)) {
-			cubeA.transform.rotation.z += XMConvertToRadians(10.0f);
-		}
-
-		if (RInput::GetKey(DIK_UP)) {
-			cubeA.transform.position.z += 0.1f;
-		}
-		if (RInput::GetKey(DIK_DOWN)) {
-			cubeA.transform.position.z -= 0.1f;
-		}
-		if (RInput::GetKey(DIK_RIGHT)) {
-			cubeA.transform.position.x += 0.1f;
-		}
-		if (RInput::GetKey(DIK_LEFT)) {
-			cubeA.transform.position.x -= 0.1f;
-		}
-
-		if (RInput::GetKey(DIK_NUMPAD8)) {
-			cubeA.transform.scale.y += 0.1f;
-		}
-		if (RInput::GetKey(DIK_NUMPAD2)) {
-			cubeA.transform.scale.y -= 0.1f;
-		}
-		if (RInput::GetKey(DIK_NUMPAD6)) {
-			cubeA.transform.scale.x += 0.1f;
-		}
-		if (RInput::GetKey(DIK_NUMPAD4)) {
-			cubeA.transform.scale.x -= 0.1f;
-		}
-
-		cubeA.transform.UpdateMatrix();
-		cubeA.UpdateFaces();
 		
-		cubeB.transform.rotation.y += XMConvertToRadians(1);
-		cubeB.transform.UpdateMatrix();
-		cubeB.UpdateFaces();
+		cube.transform.rotation.y += XMConvertToRadians(1);
+		cube.transform.UpdateMatrix();
+		cube.UpdateFaces();
 
 		camera.Update();
-		textA.Update(camera.viewProjection);
-		textB.Update(camera.viewProjection);
+		text1.Update(camera.viewProjection);
+		text2.Update(camera.viewProjection);
 		text3.Update(camera.viewProjection);
+		text4.Update(camera.viewProjection);
+		text5.Update(camera.viewProjection);
 
-		cubeA.TransferBuffer(camera.viewProjection);
-		cubeB.TransferBuffer(camera.viewProjection);
+		cube.TransferBuffer(camera.viewProjection);
 
-		sprite.transform.position = { 0, 0, 0 };
-		sprite.transform.scale = { 0.1f, 0.1f, 1 };
-		sprite.transform.UpdateMatrix();
-		sprite.TransferBuffer();
+		skydome.transform.scale = { 4,4,4 };
+		skydome.transform.UpdateMatrix();
+		skydome.TransferBuffer(camera.viewProjection);
 
-		hogeObj.transform.scale = { 4,4,4 };
-		hogeObj.transform.UpdateMatrix();
-		hogeObj.TransferBuffer(camera.viewProjection);
+		demoModelObj1.TransferBuffer(camera.viewProjection);
+		demoModelObj2.TransferBuffer(camera.viewProjection);
+		demoModelObj3.TransferBuffer(camera.viewProjection);
 
 		triColor.h++;
 		simpleTriMaterialBuff.constMap->color = Color::convertFromHSVA(triColor);
@@ -273,13 +260,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
-		cubeA.DrawCommands();
-		cubeB.DrawCommands();
-		hogeObj.DrawCommands();
+		cube.DrawCommands();
+		skydome.DrawCommands();
 
-		textA.DrawCommands();
-		textB.DrawCommands();
+		demoModelObj1.DrawCommands();
+		demoModelObj2.DrawCommands();
+		demoModelObj3.DrawCommands();
+
+		RDirectX::GetInstance()->cmdList->SetPipelineState(TextDrawer::GetInstance()->pipeline.ptr.Get());
+		text1.DrawCommands();
+		text2.DrawCommands();
 		text3.DrawCommands();
+		text4.DrawCommands();
+		text5.DrawCommands();
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());

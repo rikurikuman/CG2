@@ -35,6 +35,7 @@ public:
 		return &instance;
 	}
 
+	static Texture GetEmptyTexture();
 	static Texture GetHogeHogeTexture();
 
 	/// <summary>

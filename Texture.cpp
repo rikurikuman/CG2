@@ -21,7 +21,66 @@ void TextureManager::Init()
 	result = RDirectX::GetInstance()->device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&srvHeap));
 	assert(SUCCEEDED(result));
 
+	RegisterInternal(GetEmptyTexture(), "PreRegisteredTex_Empty");
 	RegisterInternal(GetHogeHogeTexture(), "PreRegisteredTex_HogeHoge");
+}
+
+Texture TextureManager::GetEmptyTexture()
+{
+	HRESULT result;
+
+	Texture texture = Texture();
+
+	const size_t textureWidth = 1;
+	const size_t textureHeight = 1;
+	const size_t imageDataCount = textureWidth * textureHeight;
+	Color* imageData = new Color[imageDataCount];
+
+	for (size_t i = 0; i < imageDataCount; i++) {
+		size_t x = i % textureWidth;
+		size_t y = i / textureWidth;
+
+		imageData[i] = Color(1, 1, 1, 1);
+	}
+
+	// テクスチャバッファ
+	// ヒープ設定
+	D3D12_HEAP_PROPERTIES textureHeapProp{};
+	textureHeapProp.Type = D3D12_HEAP_TYPE_CUSTOM;
+	textureHeapProp.CPUPageProperty =
+		D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	textureHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	// リソース設定
+	D3D12_RESOURCE_DESC textureResourceDesc{};
+	textureResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	textureResourceDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureResourceDesc.Width = textureWidth;
+	textureResourceDesc.Height = textureHeight;
+	textureResourceDesc.DepthOrArraySize = 1;
+	textureResourceDesc.MipLevels = 1;
+	textureResourceDesc.SampleDesc.Count = 1;
+
+	//生成
+	result = RDirectX::GetInstance()->device->CreateCommittedResource(
+		&textureHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&textureResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&texture.resource)
+	);
+	assert(SUCCEEDED(result));
+
+	result = texture.resource->WriteToSubresource(
+		0,
+		nullptr,
+		imageData,
+		sizeof(Color) * textureWidth,
+		sizeof(Color) * imageDataCount
+	);
+
+	delete[] imageData;
+	return texture;
 }
 
 Texture TextureManager::GetHogeHogeTexture()
@@ -185,10 +244,15 @@ TextureHandle TextureManager::LoadInternal(const std::string filepath)
 
 Texture& TextureManager::GetInternal(const TextureHandle& handle)
 {
+	if (handle.empty()) {
+		return textureMap["PreRegisteredTex_Empty"];
+	}
+
 	auto itr = textureMap.find(handle);
 	if (itr != textureMap.end()) {
 		return itr->second;
 	}
+	
 	return textureMap["PreRegisteredTex_HogeHoge"];
 }
 
@@ -258,11 +322,7 @@ TextureHandle TextureManager::Load(const string filepath)
 Texture& TextureManager::Get(const TextureHandle& handle)
 {
 	TextureManager* manager = TextureManager::GetInstance();
-	auto itr = manager->textureMap.find(handle);
-	if (itr != manager->textureMap.end()) {
-		return itr->second;
-	}
-	return manager->textureMap["PreRegisteredTex_HogeHoge"];
+	return manager->GetInternal(handle);
 }
 
 TextureHandle TextureManager::Register(Texture& texture, TextureHandle handle)

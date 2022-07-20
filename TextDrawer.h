@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include "GraphicsPipeline.h"
 
 struct FontTexture {
 	Texture texture;
@@ -21,6 +22,8 @@ public:
 	static TextureHandle CreateStringTexture(std::string text, std::string fontTypeFace, UINT fontSize, std::string handle = "");
 
 	//static void DrawString(int x, int y, std::string text, std::string fontTypeFace, UINT fontSize);
+
+	GraphicsPipeline pipeline;
 
 private:
 	struct Glyph {

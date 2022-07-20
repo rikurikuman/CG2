@@ -247,4 +247,8 @@ TextureHandle TextDrawer::CreateStringTexture(std::string text, std::string font
 
 void TextDrawer::Init()
 {
+	pipeline = RDirectX::GetInstance()->pipelineState;
+	pipeline.desc.DepthStencilState.DepthEnable = true;
+	pipeline.desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	pipeline.Create();
 }
