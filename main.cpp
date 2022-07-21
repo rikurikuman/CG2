@@ -33,8 +33,6 @@ using namespace DirectX;
 const int WIN_WIDTH = 1280;
 const int WIN_HEIGHT = 720;
 
-void DrawSimpleTriangle(Color color, ViewProjection viewProjection);
-
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #ifdef _DEBUG
 	ComPtr<ID3D12Debug1> debugController;
@@ -76,16 +74,25 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	controlDescText2.transform.UpdateMatrix();
 
 	BillboardImage text1(TextDrawer::CreateStringTexture("ïKê{â€ëË:êFÇ™ïœÇÌÇÈéOäpå`", "ÇlÇr Çoñæí©", 32), {0.25f, 0.25f});
-	BillboardImage text2(TextDrawer::CreateStringTexture("ÉQÅ[É~ÉìÉOî¬É|Éä", "ÇlÇr Çoñæí©", 32), {0.25f, 0.25f});
+	BillboardImage text2(TextDrawer::CreateStringTexture("ÉøÉuÉåÉìÉhÇ‡ÇµÇƒÇ¢Ç‹Ç∑", "ÇlÇr Çoñæí©", 32), {0.25f, 0.25f});
 	text1.transform.position = { 0, 1.0f, 0 };
 	text2.transform.position = { 0, 0.75f, 0 };
 	text1.billboardY = true;
 	text2.billboardY = true;
 
-	Cube cube(TextureManager::Load("Resources/conflict.jpg"));
+	TextureHandle texA = TextureManager::Load("Resources/conflict.jpg");
+	TextureHandle texB = TextureManager::Load("Resources/A.png");
+	TextureHandle texC = TextureManager::Load("Resources/B.png");
+	TextureHandle texD = TextureManager::Load("Resources/X.png");
+	TextureHandle texE = TextureManager::Load("Resources/Y.png");
+	Cube cube(texA);
+	cube.SetTexture(texB, Cube::Direction::Front);
+	cube.SetTexture(texC, Cube::Direction::Left);
+	cube.SetTexture(texD, Cube::Direction::Right);
+	cube.SetTexture(texE, Cube::Direction::Back);
 	cube.transform.position = { 0, 0, 10 };
 
-	BillboardImage text3(TextDrawer::CreateStringTexture("ï°êîÇÃÉeÉNÉXÉ`ÉÉÇì«Ç›çûÇÒÇ≈ï`âÊÇ≈Ç´Ç‹Ç∑", "ÇlÇr Çoñæí©", 32), { 0.25f, 0.25f });
+	BillboardImage text3(TextDrawer::CreateStringTexture("ï°êîÇÃâÊëúÇì«Ç›çûÇÒÇ≈ï`âÊÇ≈Ç´Ç‹Ç∑", "ÇlÇr Çoñæí©", 32), { 0.25f, 0.25f });
 	text3.transform.position = { 0, 1, 10 };
 	text3.billboardY = true;
 
@@ -117,10 +124,21 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	text5.transform.position = { 0, 1, 20 };
 	text5.billboardY = true;
 
+	Image3D text6(TextDrawer::CreateStringTexture("hogehogeÇ†Ç¢Ç§Ç¶intÇŸÇ∞", "ÇlÇr Çoñæí©", 128), { 3.0f, 3.0f });
+	text6.transform.position = { 0, -50, 1.5f };
+	text6.transform.rotation.x = Util::AngleToRadian(90);
+	text6.transform.UpdateMatrix();
+	 
+	Image3D text7(TextDrawer::CreateStringTexture("ÉeÉLÉXÉgÇÕttfÇ©ÇÁÉeÉNÉXÉ`ÉÉÇê∂ê¨ÇµÇƒì\Ç¡ÇƒÇ¢Ç‹Ç∑", "ÇlÇr Çoñæí©", 128), { 3.0f, 3.0f });
+	text7.transform.position = { 0, -50, -1.5f };
+	text7.transform.rotation.x = Util::AngleToRadian(90);
+	text7.transform.UpdateMatrix();
+
 	DebugCamera camera({0, 0, -10});
 
 
 	GraphicsPipeline simplePS = RDirectX::GetInstance()->pipelineState;
+	simplePS.desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; //ê[ìxÉeÉXÉgÇÕÇ∑ÇÈÇØÇ«èëÇ´çûÇ‹Ç»Ç≠Ç∑ÇÈ
 	simplePS.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; //ÉJÉäÉìÉOÇµÇ»Ç≠Ç∑ÇÈ
 	simplePS.Create();
 
@@ -151,7 +169,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	RConstBuffer<ViewProjectionBuffer> simpleTriViewProjectionBuff;
 
-	HSVA triColor = { 0, 255, 255, 255 };
+	HSVA triColor = { 0, 255, 255, 80 };
 
 	//////////////////////////////////////
 
@@ -186,6 +204,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		text3.Update(camera.viewProjection);
 		text4.Update(camera.viewProjection);
 		text5.Update(camera.viewProjection);
+		text6.TransferBuffer(camera.viewProjection);
+		text7.TransferBuffer(camera.viewProjection);
 
 		cube.TransferBuffer(camera.viewProjection);
 
@@ -246,6 +266,30 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//ï`âÊÉRÉ}ÉìÉh
 
+		cube.DrawCommands();
+		skydome.DrawCommands();
+
+		demoModelObj1.DrawCommands();
+		demoModelObj2.DrawCommands();
+		demoModelObj3.DrawCommands();
+
+		RDirectX::GetInstance()->cmdList->SetPipelineState(TextDrawer::GetInstance()->pipeline.ptr.Get());
+		text1.DrawCommands();
+		text2.DrawCommands();
+		text3.DrawCommands();
+		text4.DrawCommands();
+		text5.DrawCommands();
+		text6.DrawCommands();
+		text7.DrawCommands();
+
+		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
+
+		controlDescText1.TransferBuffer();
+		controlDescText2.TransferBuffer();
+		controlDescText1.DrawCommands();
+		controlDescText2.DrawCommands();
+
 		//êFïœÇÌÇÈéOäpå`
 		RDirectX::GetInstance()->cmdList->SetPipelineState(simplePS.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
@@ -260,39 +304,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
 
-		cube.DrawCommands();
-		skydome.DrawCommands();
-
-		demoModelObj1.DrawCommands();
-		demoModelObj2.DrawCommands();
-		demoModelObj3.DrawCommands();
-
-		RDirectX::GetInstance()->cmdList->SetPipelineState(TextDrawer::GetInstance()->pipeline.ptr.Get());
-		text1.DrawCommands();
-		text2.DrawCommands();
-		text3.DrawCommands();
-		text4.DrawCommands();
-		text5.DrawCommands();
-
-		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
-
-		controlDescText1.TransferBuffer();
-		controlDescText2.TransferBuffer();
-		controlDescText1.DrawCommands();
-		controlDescText2.DrawCommands();
-
-		//sprite.DrawCommands();
-
 		//ÉäÉ\Å[ÉXÉoÉäÉAÇï\é¶Ç…ñﬂÇ∑
 		RDirectX::CloseResourceBarrier(RDirectX::GetCurrentBackBufferResource());
 
 		RDirectX::RunDraw();
 	}
 	return 0;
-}
-
-void DrawSimpleTriangle(Color color, ViewProjection viewProjection)
-{
-	
 }
