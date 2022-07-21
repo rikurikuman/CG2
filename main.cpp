@@ -137,6 +137,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	DebugCamera camera({0, 0, -10});
 
 
+	//色変わる三角形
 	GraphicsPipeline simplePS = RDirectX::GetInstance()->pipelineState;
 	simplePS.desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; //深度テストはするけど書き込まなくする
 	simplePS.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; //カリングしなくする
@@ -170,6 +171,66 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	RConstBuffer<ViewProjectionBuffer> simpleTriViewProjectionBuff;
 
 	HSVA triColor = { 0, 255, 255, 80 };
+
+
+	//グリッド
+	RootSignature gridRoot = RDirectX::GetInstance()->rootSignature;
+
+	RootParamaters gridRootParams(2);
+	//定数バッファ0番(Material)
+	gridRootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
+	gridRootParams[0].Descriptor.ShaderRegister = 0; //定数バッファ番号
+	gridRootParams[0].Descriptor.RegisterSpace = 0; //デフォルト値
+	gridRootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
+	//定数バッファ1番(ViewProjection)
+	gridRootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; //定数バッファビュー
+	gridRootParams[1].Descriptor.ShaderRegister = 1; //定数バッファ番号
+	gridRootParams[1].Descriptor.RegisterSpace = 0; //デフォルト値
+	gridRootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; //全シェーダから見える
+
+	gridRoot.desc.RootParamaters = gridRootParams;
+	gridRoot.Create();
+
+	GraphicsPipeline gridPS = RDirectX::GetInstance()->pipelineState;
+	gridPS.desc.VS = Shader("Shader/GridVS.hlsl", "main", "vs_5_0");
+	gridPS.desc.PS = Shader("Shader/GridPS.hlsl", "main", "ps_5_0");
+
+	//gridPS.desc.RasterizerState.DepthClipEnable = false;
+	//gridPS.desc.DepthStencilState.DepthEnable = false;
+	//gridPS.desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+
+	InputLayout gridInputLayout = {
+		{
+			"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		},
+	};
+	gridPS.desc.InputLayout = gridInputLayout;
+	gridPS.desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	gridPS.desc.pRootSignature = gridRoot.ptr.Get();
+	gridPS.Create();
+
+	vector<VertexP> gridVertices;
+
+	for (int i = -30; i <= 30; i++) {
+		gridVertices.push_back(Vector3{ (float)i, -10, 30 });
+		gridVertices.push_back(Vector3{ (float)i, -10, -30 });
+	}
+
+	for (int i = -30; i <= 30; i++) {
+		gridVertices.push_back(Vector3{ 30, -10, (float)i });
+		gridVertices.push_back(Vector3{ -30, -10, (float)i });
+	}
+
+	VertexBuffer gridVertBuff(gridVertices);
+
+	Material gridMaterial;
+	gridMaterial.color = Color(1, 1, 1, 1);
+	RConstBuffer<MaterialBuffer> gridMaterialBuff;
+	gridMaterial.Transfer(gridMaterialBuff.constMap);
+
+	RConstBuffer<ViewProjectionBuffer> gridViewProjectionBuff;
 
 	//////////////////////////////////////
 
@@ -220,6 +281,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		triColor.h++;
 		simpleTriMaterialBuff.constMap->color = Color::convertFromHSVA(triColor);
 		simpleTriViewProjectionBuff.constMap->matrix = camera.viewProjection.matrix;
+		gridViewProjectionBuff.constMap->matrix = camera.viewProjection.matrix;
 
 		//以下描画
 		RDirectX::SetBackBufferToRenderTarget();
@@ -299,10 +361,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(2, simpleTriTransformBuff.constBuff->GetGPUVirtualAddress());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(3, simpleTriViewProjectionBuff.constBuff->GetGPUVirtualAddress());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get("").gpuHandle);
-		RDirectX::GetInstance()->cmdList->DrawIndexedInstanced(3, 1, 0, 0, 0); // 全ての頂点を使って描画
+		RDirectX::GetInstance()->cmdList->DrawIndexedInstanced(3, 1, 0, 0, 0);
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
+
+		//グリッド
+		RDirectX::GetInstance()->cmdList->SetPipelineState(gridPS.ptr.Get());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(gridRoot.ptr.Get());
+		RDirectX::GetInstance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &gridVertBuff.view);
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(0, gridMaterialBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, gridViewProjectionBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->DrawInstanced((UINT)gridVertices.size(), 1, 0, 0);
 
 		//リソースバリアを表示に戻す
 		RDirectX::CloseResourceBarrier(RDirectX::GetCurrentBackBufferResource());
