@@ -4,7 +4,6 @@
 #include <wrl.h>
 #include <vector>
 #include <string>
-#include <d3dcompiler.h>
 #include "RWindow.h"
 #include "RDirectX.h"
 #include "RInput.h"
@@ -25,7 +24,6 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 using namespace std;
 using namespace DirectX;
@@ -66,12 +64,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Model skydomeModel = Model::Load("Resources/skydome/", "skydome.obj");
 	ModelObj skydome(&skydomeModel);
 
-	Sprite controlDescText1(TextDrawer::CreateStringTexture("WASD:移動, マウスで視点操作", "", 24), {0, 1});
-	Sprite controlDescText2(TextDrawer::CreateStringTexture("Space:上昇, LShift:下降", "", 24), {0, 1});
-	controlDescText1.transform.position = { 0, (float)RWindow::GetHeight() - 24, 0 };
-	controlDescText2.transform.position = { 0, (float)RWindow::GetHeight(), 0 };
+	Sprite controlDescText1(TextDrawer::CreateStringTexture("ESC:終了", "", 24), { 0, 1 });
+	Sprite controlDescText2(TextDrawer::CreateStringTexture("WASD:移動, マウスで視点操作", "", 24), {0, 1});
+	Sprite controlDescText3(TextDrawer::CreateStringTexture("Space:上昇, LShift:下降", "", 24), {0, 1});
+	controlDescText1.transform.position = { 0, (float)RWindow::GetHeight() - 48, 0 };
+	controlDescText2.transform.position = { 0, (float)RWindow::GetHeight() - 24, 0 };
+	controlDescText3.transform.position = { 0, (float)RWindow::GetHeight(), 0 };
 	controlDescText1.transform.UpdateMatrix();
 	controlDescText2.transform.UpdateMatrix();
+	controlDescText3.transform.UpdateMatrix();
 
 	BillboardImage text1(TextDrawer::CreateStringTexture("必須課題:色が変わる三角形", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
 	BillboardImage text2(TextDrawer::CreateStringTexture("αブレンドもしています", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
@@ -170,7 +171,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	RConstBuffer<ViewProjectionBuffer> simpleTriViewProjectionBuff;
 
-	HSVA triColor = { 0, 255, 255, 80 };
+	HSVA triColor = { 0, 255, 255, 150 };
 
 
 	//グリッド
@@ -213,20 +214,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	vector<VertexP> gridVertices;
 
-	for (int i = -30; i <= 30; i++) {
-		gridVertices.push_back(Vector3{ (float)i, -10, 30 });
-		gridVertices.push_back(Vector3{ (float)i, -10, -30 });
+	for (int i = -100; i <= 100; i++) {
+		gridVertices.push_back(Vector3{ (float)i, -10, 100 });
+		gridVertices.push_back(Vector3{ (float)i, -10, -100 });
 	}
 
-	for (int i = -30; i <= 30; i++) {
-		gridVertices.push_back(Vector3{ 30, -10, (float)i });
-		gridVertices.push_back(Vector3{ -30, -10, (float)i });
+	for (int i = -100; i <= 100; i++) {
+		gridVertices.push_back(Vector3{ 100, -10, (float)i });
+		gridVertices.push_back(Vector3{ -100, -10, (float)i });
 	}
 
 	VertexBuffer gridVertBuff(gridVertices);
 
 	Material gridMaterial;
-	gridMaterial.color = Color(1, 1, 1, 1);
+	gridMaterial.color = Color(0, 1, 1, 0.25f);
 	RConstBuffer<MaterialBuffer> gridMaterialBuff;
 	gridMaterial.Transfer(gridMaterialBuff.constMap);
 
@@ -349,8 +350,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		controlDescText1.TransferBuffer();
 		controlDescText2.TransferBuffer();
+		controlDescText3.TransferBuffer();
 		controlDescText1.DrawCommands();
 		controlDescText2.DrawCommands();
+		controlDescText3.DrawCommands();
 
 		//色変わる三角形
 		RDirectX::GetInstance()->cmdList->SetPipelineState(simplePS.ptr.Get());
@@ -379,6 +382,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::CloseResourceBarrier(RDirectX::GetCurrentBackBufferResource());
 
 		RDirectX::RunDraw();
+
+		if (RInput::GetKey(DIK_ESCAPE)) {
+			break;
+		}
 	}
 	return 0;
 }

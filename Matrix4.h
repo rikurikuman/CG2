@@ -78,3 +78,6 @@ public:
 	static Matrix4 PerspectiveProjection(float fov, float aspect, float nearZ, float farZ);
 };
 
+Vector3 operator*(const Vector3 vec, const Matrix4 mat);
+Vector3& operator*=(Vector3& vec, const Matrix4 mat);
+

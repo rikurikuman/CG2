@@ -3,11 +3,8 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
-#include <d3dcompiler.h>
 #include "RootSignature.h"
 #include "Vertex.h"
-
-#pragma comment(lib, "d3dcompiler.lib")
 
 using namespace std;
 using namespace DirectX;
