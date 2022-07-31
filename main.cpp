@@ -21,6 +21,8 @@
 #include "DebugCamera.h"
 #include "BillboardImage.h"
 #include "TextDrawer.h"
+#include "SphereCollision.h"
+#include "Raycast.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -74,105 +76,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	controlDescText2.transform.UpdateMatrix();
 	controlDescText3.transform.UpdateMatrix();
 
-	BillboardImage text1(TextDrawer::CreateStringTexture("必須課題:色が変わる三角形", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
-	BillboardImage text2(TextDrawer::CreateStringTexture("αブレンドもしています", "ＭＳ Ｐ明朝", 32), {0.25f, 0.25f});
-	text1.transform.position = { 0, 1.0f, 0 };
-	text2.transform.position = { 0, 0.75f, 0 };
-	text1.billboardY = true;
-	text2.billboardY = true;
+	TextureHandle tex = TextureManager::Load("Resources/conflict.jpg");
+	Cube cubeA(tex);
+	Cube cubeB(tex);
+	cubeA.transform.position = { 0, 0, 10 };
+	SphereCollision cubeColA(cubeA.transform.position, 1);
+	Raycast cubeColB(cubeB.transform.position, Vector3(0, 0, 1), 10);
 
-	TextureHandle texA = TextureManager::Load("Resources/conflict.jpg");
-	TextureHandle texB = TextureManager::Load("Resources/A.png");
-	TextureHandle texC = TextureManager::Load("Resources/B.png");
-	TextureHandle texD = TextureManager::Load("Resources/X.png");
-	TextureHandle texE = TextureManager::Load("Resources/Y.png");
-	Cube cube(texA);
-	cube.SetTexture(texB, Cube::Direction::Front);
-	cube.SetTexture(texC, Cube::Direction::Left);
-	cube.SetTexture(texD, Cube::Direction::Right);
-	cube.SetTexture(texE, Cube::Direction::Back);
-	cube.transform.position = { 0, 0, 10 };
-
-	BillboardImage text3(TextDrawer::CreateStringTexture("複数の画像を読み込んで描画できます", "ＭＳ Ｐ明朝", 32), { 0.25f, 0.25f });
-	text3.transform.position = { 0, 1, 10 };
-	text3.billboardY = true;
-
-	Model demoModel1 = Model::Load("Resources/", "encyu.obj");
-	ModelObj demoModelObj1(&demoModel1);
-	demoModelObj1.transform.position = { 0, 0, 20 };
-	demoModelObj1.transform.scale = { 0.5f, 0.5f, 0.5f };
-	demoModelObj1.transform.rotation.y = Util::AngleToRadian(180);
-	demoModelObj1.transform.UpdateMatrix();
-
-	Model demoModel2 = Model::Load("Resources/", "monkey.obj");
-	ModelObj demoModelObj2(&demoModel2);
-	demoModelObj2.transform.position = { 2, 0, 20 };
-	demoModelObj2.transform.scale = { 0.5f, 0.5f, 0.5f };
-	demoModelObj2.transform.rotation.y = Util::AngleToRadian(180);
-	demoModelObj2.transform.UpdateMatrix();
-
-	Model demoModel3 = Model::Load("Resources/", "hoge.obj");
-	ModelObj demoModelObj3(&demoModel3);
-	demoModelObj3.transform.position = { -2, 0, 20 };
-	demoModelObj3.transform.scale = { 1, 1, 1 };
-	demoModelObj3.transform.rotation.y = Util::AngleToRadian(180);
-	demoModelObj3.transform.UpdateMatrix();
-
-	BillboardImage text4(TextDrawer::CreateStringTexture("「.obj」形式のモデルを読み込んで描画できます", "ＭＳ Ｐ明朝", 32), { 0.25f, 0.25f });
-	BillboardImage text5(TextDrawer::CreateStringTexture("周りに見えてる天球もモデルから読み込んでます", "ＭＳ Ｐ明朝", 32), { 0.25f, 0.25f });
-	text4.transform.position = { 0, 1.25f, 20 };
-	text4.billboardY = true;
-	text5.transform.position = { 0, 1, 20 };
-	text5.billboardY = true;
-
-	Image3D text6(TextDrawer::CreateStringTexture("hogehogeあいうえintほげ", "ＭＳ Ｐ明朝", 128), { 3.0f, 3.0f });
-	text6.transform.position = { 0, -50, 1.5f };
-	text6.transform.rotation.x = Util::AngleToRadian(90);
-	text6.transform.UpdateMatrix();
-	 
-	Image3D text7(TextDrawer::CreateStringTexture("テキストはttfからテクスチャを生成して貼っています", "ＭＳ Ｐ明朝", 128), { 3.0f, 3.0f });
-	text7.transform.position = { 0, -50, -1.5f };
-	text7.transform.rotation.x = Util::AngleToRadian(90);
-	text7.transform.UpdateMatrix();
+	Image3D text(TextDrawer::CreateStringTexture("hogehogeあいうえintほげ", "ＭＳ Ｐ明朝", 128), { 3.0f, 3.0f });
+	text.transform.position = { 0, 0, 20 };
+	text.transform.UpdateMatrix();
 
 	DebugCamera camera({0, 0, -10});
-
-
-	//色変わる三角形
-	GraphicsPipeline simplePS = RDirectX::GetInstance()->pipelineState;
-	simplePS.desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; //深度テストはするけど書き込まなくする
-	simplePS.desc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; //カリングしなくする
-	simplePS.Create();
-
-	VertexPNU simpleTriVertices[] = {
-		{{ -0.5f, -0.5, 0.0f }, {}, {0.0f, 1.0f}}, //左下
-		{{ -0.5f,  0.5, 0.0f }, {}, {0.0f, 0.0f}}, //左上
-		{{  0.5f, -0.5, 0.0f }, {}, {1.0f, 1.0f}}, //右下
-	};
-
-	//頂点インデックスデータ
-	UINT simpleTriIndices[] = {
-		0, 1, 2,
-	};
-
-	VertexPNU::CalcNormalVec(simpleTriVertices, simpleTriIndices, _countof(simpleTriIndices));
-
-	VertexBuffer simpleTriVertBuff(simpleTriVertices, _countof(simpleTriVertices));
-	IndexBuffer simpleTriIndexBuff(simpleTriIndices, _countof(simpleTriIndices));
-
-	Material simpleTriMaterial;
-	simpleTriMaterial.color = Color(1, 1, 1, 1);
-	RConstBuffer<MaterialBuffer> simpleTriMaterialBuff;
-	simpleTriMaterial.Transfer(simpleTriMaterialBuff.constMap);
-
-	RConstBuffer<TransformBuffer> simpleTriTransformBuff;
-	Transform simpleTriTransform;
-	simpleTriTransform.Transfer(simpleTriTransformBuff.constMap);
-
-	RConstBuffer<ViewProjectionBuffer> simpleTriViewProjectionBuff;
-
-	HSVA triColor = { 0, 255, 255, 150 };
-
 
 	//グリッド
 	RootSignature gridRoot = RDirectX::GetInstance()->rootSignature;
@@ -255,33 +170,52 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (RInput::GetKeyDown(DIK_F1)) {
 			Util::debugBool = !Util::debugBool;
 		}
+
+		float moveSpeed = 0.1f;
+		Vector3 moveVec;
+
+		if (RInput::GetKey(DIK_NUMPAD8)) {
+			moveVec.z += moveSpeed;
+		}
+		if (RInput::GetKey(DIK_NUMPAD2)) {
+			moveVec.z -= moveSpeed;
+		}
+		if (RInput::GetKey(DIK_NUMPAD6)) {
+			moveVec.x += moveSpeed;
+		}
+		if (RInput::GetKey(DIK_NUMPAD4)) {
+			moveVec.x -= moveSpeed;
+		}
+
+		if (RInput::GetKeyDown(DIK_NUMPAD5)) {
+			if (cubeColB.distance < 0) {
+				cubeColB.distance = 10;
+			}
+			else {
+				cubeColB.distance = -1;
+			}
+		}
+
+		cubeB.transform.position += moveVec;
+		cubeB.transform.UpdateMatrix();
+		cubeB.UpdateFaces();
 		
-		cube.transform.rotation.y += XMConvertToRadians(1);
-		cube.transform.UpdateMatrix();
-		cube.UpdateFaces();
+		cubeA.transform.rotation.y += XMConvertToRadians(1);
+		cubeA.transform.UpdateMatrix();
+		cubeA.UpdateFaces();
+
+		cubeColB.pos = cubeB.transform.position;
 
 		camera.Update();
-		text1.Update(camera.viewProjection);
-		text2.Update(camera.viewProjection);
-		text3.Update(camera.viewProjection);
-		text4.Update(camera.viewProjection);
-		text5.Update(camera.viewProjection);
-		text6.TransferBuffer(camera.viewProjection);
-		text7.TransferBuffer(camera.viewProjection);
+		text.TransferBuffer(camera.viewProjection);
 
-		cube.TransferBuffer(camera.viewProjection);
+		cubeA.TransferBuffer(camera.viewProjection);
+		cubeB.TransferBuffer(camera.viewProjection);
 
 		skydome.transform.scale = { 4,4,4 };
 		skydome.transform.UpdateMatrix();
 		skydome.TransferBuffer(camera.viewProjection);
 
-		demoModelObj1.TransferBuffer(camera.viewProjection);
-		demoModelObj2.TransferBuffer(camera.viewProjection);
-		demoModelObj3.TransferBuffer(camera.viewProjection);
-
-		triColor.h++;
-		simpleTriMaterialBuff.constMap->color = Color::convertFromHSVA(triColor);
-		simpleTriViewProjectionBuff.constMap->matrix = camera.viewProjection.matrix;
 		gridViewProjectionBuff.constMap->matrix = camera.viewProjection.matrix;
 
 		//以下描画
@@ -329,21 +263,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//描画コマンド
 
-		cube.DrawCommands();
+		cubeA.DrawCommands();
+		cubeB.DrawCommands();
 		skydome.DrawCommands();
 
-		demoModelObj1.DrawCommands();
-		demoModelObj2.DrawCommands();
-		demoModelObj3.DrawCommands();
-
-		RDirectX::GetInstance()->cmdList->SetPipelineState(TextDrawer::GetInstance()->pipeline.ptr.Get());
-		text1.DrawCommands();
-		text2.DrawCommands();
-		text3.DrawCommands();
-		text4.DrawCommands();
-		text5.DrawCommands();
-		text6.DrawCommands();
-		text7.DrawCommands();
+		if (cubeColA.Collide(cubeColB)) {
+			RDirectX::GetInstance()->cmdList->SetPipelineState(TextDrawer::GetInstance()->pipeline.ptr.Get());
+			text.DrawCommands();
+		}
 
 		RDirectX::GetInstance()->cmdList->SetPipelineState(SpriteManager::GetInstance()->GetGraphicsPipeline().ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(SpriteManager::GetInstance()->GetRootSignature().ptr.Get());
@@ -355,20 +282,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		controlDescText2.DrawCommands();
 		controlDescText3.DrawCommands();
 
-		//色変わる三角形
-		RDirectX::GetInstance()->cmdList->SetPipelineState(simplePS.ptr.Get());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
-		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &simpleTriVertBuff.view);
-		RDirectX::GetInstance()->cmdList->IASetIndexBuffer(&simpleTriIndexBuff.view);
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, simpleTriMaterialBuff.constBuff->GetGPUVirtualAddress());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(2, simpleTriTransformBuff.constBuff->GetGPUVirtualAddress());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(3, simpleTriViewProjectionBuff.constBuff->GetGPUVirtualAddress());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootDescriptorTable(0, TextureManager::Get("").gpuHandle);
-		RDirectX::GetInstance()->cmdList->DrawIndexedInstanced(3, 1, 0, 0, 0);
-
-		RDirectX::GetInstance()->cmdList->SetPipelineState(RDirectX::GetInstance()->pipelineState.ptr.Get());
-		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(RDirectX::GetInstance()->rootSignature.ptr.Get());
-
 		//グリッド
 		RDirectX::GetInstance()->cmdList->SetPipelineState(gridPS.ptr.Get());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootSignature(gridRoot.ptr.Get());
@@ -377,6 +290,26 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(0, gridMaterialBuff.constBuff->GetGPUVirtualAddress());
 		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, gridViewProjectionBuff.constBuff->GetGPUVirtualAddress());
 		RDirectX::GetInstance()->cmdList->DrawInstanced((UINT)gridVertices.size(), 1, 0, 0);
+
+		vector<VertexP> rayVertices;
+		rayVertices.push_back(cubeColB.pos);
+		if (cubeColB.distance < 0) {
+			rayVertices.push_back(cubeColB.pos + cubeColB.direction * 10000);
+		}
+		else {
+			rayVertices.push_back(cubeColB.pos + cubeColB.direction * cubeColB.distance);
+		}
+		VertexBuffer rayVertBuff(rayVertices);
+
+		Material rayMaterial;
+		rayMaterial.color = Color(1, 1, 1, 1);
+		RConstBuffer<MaterialBuffer> rayMaterialBuff;
+		rayMaterial.Transfer(rayMaterialBuff.constMap);
+
+		RDirectX::GetInstance()->cmdList->IASetVertexBuffers(0, 1, &rayVertBuff.view);
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(0, rayMaterialBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->SetGraphicsRootConstantBufferView(1, gridViewProjectionBuff.constBuff->GetGPUVirtualAddress());
+		RDirectX::GetInstance()->cmdList->DrawInstanced((UINT)rayVertices.size(), 1, 0, 0);
 
 		//リソースバリアを表示に戻す
 		RDirectX::CloseResourceBarrier(RDirectX::GetCurrentBackBufferResource());

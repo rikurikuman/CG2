@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BillboardImage.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="DebugCamera.cpp" />
@@ -165,12 +166,14 @@
     <ClCompile Include="ModelObj.cpp" />
     <ClCompile Include="Obj3D.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="Raycast.cpp" />
     <ClCompile Include="RDirectX.cpp" />
     <ClCompile Include="RInput.cpp" />
     <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="RWindow.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SimpleParticle.cpp" />
+    <ClCompile Include="SphereCollision.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="TextDrawer.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -248,6 +251,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BillboardImage.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="DebugCamera.h" />
@@ -260,6 +264,7 @@
     <ClInclude Include="ModelObj.h" />
     <ClInclude Include="Obj3D.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="Raycast.h" />
     <ClInclude Include="RConstBuffer.h" />
     <ClInclude Include="RDirectX.h" />
     <ClInclude Include="RInput.h" />
@@ -267,6 +272,7 @@
     <ClInclude Include="RWindow.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SimpleParticle.h" />
+    <ClInclude Include="SphereCollision.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="TextDrawer.h" />
     <ClInclude Include="Texture.h" />
