@@ -187,6 +187,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			moveVec.x -= moveSpeed;
 		}
 
+		if (RInput::GetKey(DIK_RIGHT)) {
+			cubeColB.direction *= Matrix4::RotationY(Util::AngleToRadian(1));
+		}
+		if (RInput::GetKey(DIK_LEFT)) {
+			cubeColB.direction *= Matrix4::RotationY(Util::AngleToRadian(-1));
+		}
+
 		if (RInput::GetKeyDown(DIK_NUMPAD5)) {
 			if (cubeColB.distance < 0) {
 				cubeColB.distance = 10;

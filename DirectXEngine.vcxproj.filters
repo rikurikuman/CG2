@@ -148,7 +148,7 @@
       <Filter>ソース ファイル\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Raycast.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -258,7 +258,7 @@
       <Filter>ヘッダー ファイル\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Raycast.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
